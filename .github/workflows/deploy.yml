@@ -1,0 +1,32 @@
+name: Build & Deploy to Public Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
+    - name: Build project (HTML example)
+      run: |
+        mkdir build
+        cp index.html build/index.html  # Nếu HTML thuần
+        # Hoặc npm install & npm run build nếu là React/Vue
+
+    - name: Push to public repo
+      run: |
+        git config --global user.email "you@example.com"
+        git config --global user.name "Your Name"
+
+        cd build
+        git init
+        git remote add origin https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/your-username/my-public-web.git
+        git add .
+        git commit -m "Deploy from private repo"
+        git push -f origin main
