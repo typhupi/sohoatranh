@@ -1,0 +1,85 @@
+#string-art-wrapper {
+  max-width: 800px; margin: 0 auto; padding: 20px; position: relative; touch-action: auto;
+}
+#string-art-wrapper input, #string-art-wrapper label, #string-art-wrapper button, #string-art-wrapper select {
+  font-size: 16px; margin: 5px; padding: 6px; box-sizing: border-box;
+}
+#string-art-wrapper canvas {
+  border: 1px solid #ccc; max-width: 100%; touch-action: none; display: block; margin: 0 auto;
+}
+@media (max-width: 600px) {
+  #string-art-wrapper canvas { width: 100% !important; height: auto !important; }
+}
+#cropModal, #sampleModal, #realTimeModal, #exportModal {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; touch-action: auto;
+}
+#cropModalContent, #sampleModalContent, #exportModalContent {
+  position: relative; margin: 20px auto; background: white; padding: 20px; border-radius: 5px; text-align: center; max-width: 90%; width: 400px; touch-action: none;
+}
+#realTimeModalContent {
+  position: relative; margin: 20px auto; background: white; padding: 20px; border-radius: 5px; text-align: center; max-width: 90%; width: 800px; height: 600px; touch-action: none;
+}
+#cropImage, #sampleImage { max-width: 80vw; max-height: 80vh; }
+.slider-wrapper { display: flex; align-items: center; width: 100%; margin: 5px 0; padding-left: 0; }
+.slider-value { margin-left: 10px; font-size: 14px; min-width: 30px; }
+.input-row { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; margin-bottom: 10px; }
+.input-row > * { flex: 1; min-width: 120px; margin: 5px; }
+.input-row .pin-input { min-width: 60px; flex: 0 0 60px; }
+.button-row { 
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: left; margin-top: 1px; gap: 0.5px; 
+}
+.button-row > button { 
+  flex: 1; min-width: 60px; max-width: 33%; margin: 1px 1; padding: 1px; 
+}
+.button-row > .control-buttons { 
+  flex: none; width: 300px; display: flex; justify-content: left; gap: 0.5px; margin: 1px -3px; 
+}
+.control-buttons > button { width: 90px; }
+.progress-wrapper { 
+  width: 100%; text-align: center; margin: 0px 0; position: relative; overflow: hidden; height: 60px; 
+}
+.label-left { text-align: left; width: 100px; flex: 0 0 auto; margin-right: 10px; }
+.start-button { background-color: #4CAF50; color: white; }
+.start-button:disabled { background-color: #cccccc; cursor: not-allowed; }
+#marqueeText {
+  font-size: 16px; color: Blue; text-shadow: 8px 8px 16px rgba(0, 0, 0, 0.5); white-space: nowrap;
+  position: absolute; top: 35px; left: 100%; animation: marquee 5s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+.sample-images { display: flex; gap: 10px; margin-top: 10px; }
+.sample-images img { width: 80px; height: 80px; object-fit: cover; cursor: pointer; border: 2px solid #ccc; border-radius: 5px; }
+.sample-images img:hover { border-color: #4CAF50; }
+#numberListContainer {
+  position: absolute; left: 20px; top: 20px; width: 30px; height: 200px; overflow-y: auto; border: 1px solid #ccc; background: #fff;
+}
+#numberList { font-size: 14px; text-align: right; }
+#numberList div { padding: 2px; }
+#numberList .active { font-weight: bold; color: red; font-size: 16px; }
+#currentNumber {
+  position: absolute; right: 20px; bottom: 95px; font-size: 120px; font-weight: bold;
+}
+#stepText {
+  position: absolute; right: 20px; bottom: 225px; font-size: 20px; color: blue; text-align: right;
+}
+#stepText span { color: red; }
+#realTimeCanvas {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 300px; height: 300px; border: 1px solid #ccc;
+}
+#realTimeControls {
+  position: absolute; bottom: 20px; width: 100%; text-align: left; padding-left: 20px; display: flex; flex-wrap: wrap; gap: 3px;
+}
+#realTimeStepSlider { width: 110px; margin-top: 2px; }
+#speedSlider { width: 110px; margin-top: 2px; }
+#realTimeControls button { margin-top: 3px; }
+#numberMarquee {
+  position: absolute; top: 510px; left: 50%; transform: translateX(-50%); width: 340px; height: 25px; border: 2px solid #ccc; overflow: hidden; background: #fff; white-space: nowrap; text-align: left;
+}
+#numberMarquee span { display: inline-block; padding: 0 5px; font-size: 14px; }
+#numberMarquee .active { font-weight: bold; color: red; font-size: 18px; }
+@keyframes numberScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
