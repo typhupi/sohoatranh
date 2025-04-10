@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>String Art Generator - Huỳnh Văn Hưng</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+  <style>
+    #string-art-wrapper {
+      max-width: 800px; margin: 0 auto; padding: 20px; position: relative; touch-action: auto;
+    }
+    #string-art-wrapper input, #string-art-wrapper label, #string-art-wrapper button, #string-art-wrapper select {
+      font-size: 16px; margin: 5px; padding: 6px; box-sizing: border-box;
+    }
+    #string-art-wrapper canvas {
+      border: 1px solid #ccc; max-width: 100%; touch-action: none; display: block; margin: 0 auto;
+    }
+    @media (max-width: 600px) {
+      #string-art-wrapper canvas { width: 100% !important; height: auto !important; }
+    }
+    #cropModal, #sampleModal, #realTimeModal, #exportModal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; touch-action: auto;
+    }
+    #cropModalContent, #sampleModalContent, #exportModalContent {
+      position: relative; margin: 20px auto; background: white; padding: 20px; border-radius: 5px; text-align: center; max-width: 90%; width: 400px; touch-action: none;
+    }
+    #realTimeModalContent {
+      position: relative; margin: 20px auto; background: white; padding: 20px; border-radius: 5px; text-align: center; max-width: 90%; width: 800px; height: 600px; touch-action: none;
+    }
+    #cropImage, #sampleImage { max-width: 80vw; max-height: 80vh; }
+    .slider-wrapper { display: flex; align-items: center; width: 100%; margin: 5px 0; padding-left: 0; }
+    .slider-value { margin-left: 10px; font-size: 14px; min-width: 30px; }
+    .input-row { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; margin-bottom: 10px; }
+    .input-row > * { flex: 1; min-width: 120px; margin: 5px; }
+    .input-row .pin-input { min-width: 60px; flex: 0 0 60px; }
+    .button-row { 
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: space-between; 
+      align-items: left; 
+      margin-top: 1px; 
+      gap: 0.5px; 
+    }
+    .button-row > button { 
+      flex: 1; 
+      min-width: 60px; 
+      max-width: 33%;
+      margin: 1px 1; 
+      padding: 1px; 
+    }
+    .button-row > .control-buttons { 
+      flex: none; 
+      width: 300px;
+      display: flex; 
+      justify-content: left; 
+      gap: 0.5px; 
+      margin: 1px -3px ; 
+    }
+    .control-buttons > button {
+      width: 90px;
+    }
+    .progress-wrapper { 
+      width: 100%; 
+      text-align: center; 
+      margin: 0px 0; 
+      position: relative; 
+      overflow: hidden; 
+      height: 60px; 
+    }
+    .label-left { text-align: left; width: 100px; flex: 0 0 auto; margin-right: 10px; }
+    .start-button { background-color: #4CAF50; color: white; }
+    .start-button:disabled { background-color: #cccccc; cursor: not-allowed; }
+    #marqueeText {
+      font-size: 16px;
+      color: Blue;
+      text-shadow: 8px 8px 16px rgba(0, 0, 0, 0.5);
+      white-space: nowrap;
+      position: absolute;
+      top: 35px;
+      left: 100%;
+      animation: marquee 5s linear infinite;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+    .sample-images { display: flex; gap: 10px; margin-top: 10px; }
+    .sample-images img { width: 80px; height: 80px; object-fit: cover; cursor: pointer; border: 2px solid #ccc; border-radius: 5px; }
+    .sample-images img:hover { border-color: #4CAF50; }
+    #numberListContainer {
+      position: absolute; left: 20px; top: 20px; width: 30px; height: 200px; overflow-y: auto; border: 1px solid #ccc; background: #fff;
+    }
+ iconic   #numberList { font-size: 14px; text-align: right; }
+    #numberList div { padding: 2px; }
+    #numberList .active { font-weight: bold; color: red; font-size: 16px; }
+    #currentNumber {
+      position: absolute; right: 20px; bottom: 95px; font-size: 120px; font-weight: bold;
+    }
+    #stepText {
+      position: absolute; right: 20px; bottom: 225px; font-size: 20px; color: blue; text-align: right;
+    }
+    #stepText span { color: red; }
+    #realTimeCanvas {
+      position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 300px; height: 300px; border: 1px solid #ccc;
+    }
+    #realTimeControls {
+      position: absolute; bottom: 20px; width: 100%; text-align: left; padding-left: 20px; display: flex; flex-wrap: wrap; gap: 3px;
+    }
+    #realTimeStepSlider { width: 110px; margin-top: 2px; }
+    #speedSlider { width: 110px; margin-top: 2px; }
+    #realTimeControls button { margin-top: 3px; }
+    #numberMarquee {
+      position: absolute; top: 510px; left: 50%; transform: translateX(-50%); width: 340px; height: 25px; border: 2px solid #ccc; overflow: hidden; background: #fff; white-space: nowrap; text-align: left;
+    }
+    #numberMarquee span { display: inline-block; padding: 0 5px; font-size: 14px; }
+    #numberMarquee .active { font-weight: bold; color: red; font-size: 18px; }
+    @keyframes numberScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+  <div id="string-art-wrapper">
+    <h2 style="font-size:1.5em; text-align: center;">HUỲNH VĂN HƯNG 0974.47.1984</h2>
+    <div class="input-row">
+      <label class="label-left">Tải ảnh:</label><input type="file" id="upload" accept="image/*">
+    </div>
+    <div class="sample-images">
+      <img src="https://via.placeholder.com/150?text=Sample+1" alt="Sample 1" onclick="openSampleModal(0)">
+      <img src="https://via.placeholder.com/150?text=Sample+2" alt="Sample 2" onclick="openSampleModal(1)">
+      <img src="https://via.placeholder.com/150?text=Sample+3" alt="Sample 3" onclick="openSampleModal(2)">
+    </div>
+    <div class="input-row">
+      <button onclick="toggleGrayscale()" id="grayscaleBtn">Chuyển ảnh Trắng Đen</button>
+    </div>
+    <div class="input-row">
+      <div class="slider-wrapper"><label class="label-left">Độ sáng:</label><input type="range" id="brightness" min="-100" max="100" value="0"><span class="slider-value" id="brightnessValue">0</span></div>
+    </div>
+    <div class="input-row">
+      <div class="slider-wrapper"><label class="label-left">Độ tương phản:</label><input type="range" id="contrast" min="-100" max="100" value="0"><span class="slider-value" id="contrastValue">0</span></div>
+    </div>
+    <div class="input-row">
+      <div class="slider-wrapper"><label class="label-left">Xem bước:</label><input type="range" id="stepSlider" min="0" max="0" value="0" disabled><span class="slider-value" id="stepValue">0</span></div>
+    </div>
+    <div class="progress-wrapper">
+      <progress id="progressBar" value="0" max="100" style="width:80%; display:none;"></progress>
+      <span id="progressText" style="display:none; font-size:14px;"></span>
+      <div id="marqueeText">Tranh chỉ số hoá - Được tạo bởi Huỳnh Văn Hưng 0974.47.1984</div>
+    </div>
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <div class="button-row">
+      <button onclick="toggleImage()" id="toggleImageBtn">Ảnh:Bật</button>
+      <button onclick="togglePins()" id="togglePinsBtn">Đinh: Tắt</button>
+      <button onclick="toggleLines()" id="toggleLinesBtn">Chỷ: Bật</button>
+      <div class="control-buttons">
+        <button class="start-button" id="startBtn" onclick="generateSmartStringArt()">Số hoá tranh</button>
+        <button onclick="togglePause()" id="pauseBtn">Tạm dừng</button>
+        <button onclick="openRealTimeModal()" id="realTimeBtn">Vẽ tranh chỉ</button>
+      </div>
+    </div>
+    <div class="input-row">
+      <label class="label-left" for="paperSize">Khổ giấy:</label>
+      <select id="paperSize" onchange="updateCanvasSize()">
+        <option value="Default" selected>Default (800x800)</option>
+        <option value="A4">A4 (21.0 x 29.7 cm, 150 DPI)</option>
+        <option value="A3">A3 (29.7 x 42.0 cm, 150 DPI)</option>
+        <option value="A2">A2 (42.0 x 59.4 cm, 150 DPI)</option>
+        <option value="A1">A1 (59.4 x 84.1 cm, 150 DPI)</option>
+      </select>
+      <label class="label-left" for="pins">Số đinh:</label>
+      <input type="number" id="pins" class="pin-input" value="200" min="10" max="1000" onchange="enableStartButton()">
+      <select id="pinPresets" class="pin-input" onchange="document.getElementById('pins').value = this.value; enableStartButton();">
+        <option value="200">200</option>
+        <option value="400">400</option>
+        <option value="600">600</option>
+        <option value="800">800</option>
+      </select>
+      <label class="label-left" for="steps">Số bước:</label><input type="number" id="steps" value="800" min="10" max="5000">
+      <label class="label-left" for="shape">Hình dạng:</label>
+      <select id="shape">
+        <option value="circle">Tròn</option>
+        <option value="square">Vuông</option>
+        <option value="oval">Oval</option>
+      </select>
+    </div>
+    <div class="input-row">
+      <label class="label-left" for="threadColor">Màu chỉ:</label><input type="color" id="threadColor" value="#000000">
+      <div class="slider-wrapper"><label class="label-left" for="threadWidth">Độ dày chỉ:</label><input type="range" id="threadWidth" min="0.1" max="2" step="0.1" value="0.1"><span class="slider-value" id="threadWidthValue">0.1</span></div>
+    </div>
+    <div class="button-row">
+      <button onclick="downloadSVG()">Tải SVG</button>
+      <button onclick="downloadPNG()">Tải PNG</button>
+      <button onclick="toggleEditPins()" id="editBtn">Chỉnh sửa đinh: Tắt</button>
+      <button onclick="saveToLocal()">Lưu tranh</button>
+      <button onclick="openExportModal()">Tải số hoá Tranh</button>
+      <button onclick="downloadExcel()">Tải Excel số hoá</button>
+    </div>
+    <div id="cropModal">
+      <div id="cropModalContent">
+        <img id="cropImage" src="">
+        <br>
+        <button onclick="cropImage()">Cắt ảnh</button>
+        <button onclick="closeCropModal()">Hủy</button>
+      </div>
+    </div>
+    <div id="sampleModal">
+      <div id="sampleModalContent">
+        <img id="sampleImage" src="">
+        <br>
+        <button onclick="selectSampleImage()">Chọn</button>
+        <button onclick="closeSampleModal()">Trở về</button>
+      </div>
+    </div>
+    <div id="realTimeModal">
+      <div id="realTimeModalContent">
+        <div id="numberListContainer">
+          <div id="numberList"></div>
+        </div>
+        <canvas id="realTimeCanvas" width="300" height="300"></canvas>
+        <div id="numberMarquee"></div>
+        <div id="currentNumber"></div>
+        <div id="stepText"></div>
+        <div id="realTimeControls">
+          <input type="range" id="realTimeStepSlider" min="0" max="0" value="0" step="1"><span id="realTimeStepValue">0</span>
+          <input type="range" id="speedSlider" min="0.01" max="10" step="0.1" value="5"><span id="speedValue">5s</span>
+          <button onclick="toggleRealTimePlay()" id="playPauseBtn">Tạm dừng</button>
+          <button onclick="closeRealTimeModal()">Đóng</button>
+        </div>
+      </div>
+    </div>
+    <div id="exportModal">
+      <div id="exportModalContent">
+        <h3>Chọn loại xuất PDF</h3>
+        <select id="exportType">
+          <option value="1">1. Hướng dẫn tranh chỉ (mã số)</option>
+          <option value="2">2. Bản vẽ bố trí đinh</option>
+          <option value="3">3. Cả hướng dẫn và bố trí đinh</option>
+        </select>
+        <div id="stepsInput" style="margin-top: 10px;">
+          <label for="exportSteps">Số bước muốn xuất (tối đa <span id="maxSteps">0</span>):</label>
+          <input type="number" id="exportSteps" min="1" value="0">
+        </div>
+        <div id="includeImageOption" style="margin-top: 10px;">
+          <label><input type="checkbox" id="includeImage"> Kèm theo tranh chỉ trong PDF</label>
+        </div>
+        <br>
+        <button onclick="downloadNumberPDF()">Xuất PDF</button>
+        <button onclick="closeExportModal()">Hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let image = new Image();
+    let originalImage = null;
+    let originalColorImage = null;
+    let pins = [];
+    let lines = [];
+    let brightnessMap = [];
+    let isEditing = false;
+    let draggingPin = null;
+    let showImage = true;
+    let showLines = true;
+    let showPins = false;
+    let lineDensityMap = [];
+    let cropper = null;
+    let isPaused = false;
+    let currentStep = 0;
+    let lastPin = 0;
+    let usedPairs = new Set();
+    const { jsPDF } = window.jspdf;
+    const startBtn = document.getElementById('startBtn');
+    const stepSlider = document.getElementById('stepSlider');
+    const stepValue = document.getElementById('stepValue');
+    const sampleImages = [
+      'https://via.placeholder.com/150?text=Sample+1',
+      'https://via.placeholder.com/150?text=Sample+2',
+      'https://via.placeholder.com/150?text=Sample+3'
+    ];
+    let realTimeInterval = null;
+    let realTimeStep = 0;
+    let isRealTimePlaying = false;
+    const realTimeCanvas = document.getElementById('realTimeCanvas');
+    const realTimeCtx = realTimeCanvas ? realTimeCanvas.getContext('2d') : null;
+    let isGrayscale = false;
+
+    const paperSizes = {
+      'Default': { width: 800, height: 800, maxPins: 1000 },
+      'A4': { width: 1240, height: 1754, maxPins: 200 },
+      'A3': { width: 1754, height: 2481, maxPins: 400 },
+      'A2': { width: 2481, height: 3509, maxPins: 800 },
+      'A1': { width: 3509, height: 4962, maxPins: 1000 }
+    };
+
+    function updateCanvasSize() {
+      const paperSize = document.getElementById('paperSize').value;
+      const { width, height, maxPins } = paperSizes[paperSize];
+      canvas.width = width;
+      canvas.height = height;
+
+      const pinInput = document.getElementById('pins');
+      pinInput.max = maxPins;
+      if (parseInt(pinInput.value) > maxPins) pinInput.value = maxPins;
+
+      const pinPresets = document.getElementById('pinPresets');
+      pinPresets.innerHTML = '';
+      const pinOptions = paperSize === 'Default' ? [200, 400, 600, 800, 1000] :
+                        paperSize === 'A4' ? [200] :
+                        paperSize === 'A3' ? [200, 400] :
+                        paperSize === 'A2' ? [400, 600, 800] :
+                        [400, 600, 800, 1000];
+      pinOptions.forEach(pin => {
+        const option = document.createElement('option');
+        option.value = pin;
+        option.textContent = pin;
+        pinPresets.appendChild(option);
+      });
+      pinPresets.value = pinOptions[0];
+      enableStartButton();
+      redrawCanvas();
+    }
+
+    document.getElementById('upload').addEventListener('change', function (e) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        image = new Image();
+        image.onload = () => {
+          document.getElementById('cropImage').src = event.target.result;
+          document.getElementById('cropModal').style.display = 'block';
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(document.getElementById('cropImage'), {
+            aspectRatio: canvas.width / canvas.height,
+            viewMode: 1,
+            autoCropArea: 0.8,
+          });
+        };
+        image.src = event.target.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function cropImage() {
+      const croppedCanvas = cropper.getCroppedCanvas({ width: canvas.width, height: canvas.height });
+      originalImage = document.createElement("canvas");
+      originalImage.width = canvas.width;
+      originalImage.height = canvas.height;
+      const octx = originalImage.getContext("2d");
+      octx.drawImage(croppedCanvas, 0, 0, canvas.width, canvas.height);
+      
+      originalColorImage = document.createElement("canvas");
+      originalColorImage.width = canvas.width;
+      originalColorImage.height = canvas.height;
+      const colorCtx = originalColorImage.getContext("2d");
+      colorCtx.drawImage(croppedCanvas, 0, 0, canvas.width, canvas.height);
+      
+      applyFilters();
+      redrawCanvas();
+      closeCropModal();
+    }
+
+    function closeCropModal() {
+      document.getElementById('cropModal').style.display = 'none';
+      if (cropper) cropper.destroy();
+    }
+
+    function openSampleModal(index) {
+      document.getElementById('sampleImage').src = sampleImages[index];
+      document.getElementById('sampleModal').style.display = 'block';
+    }
+
+    function selectSampleImage() {
+      image = new Image();
+      image.onload = () => {
+        originalImage = document.createElement("canvas");
+        originalImage.width = canvas.width;
+        originalImage.height = canvas.height;
+        const octx = originalImage.getContext("2d");
+        octx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        
+        originalColorImage = document.createElement("canvas");
+        originalColorImage.width = canvas.width;
+        originalColorImage.height = canvas.height;
+        const colorCtx = originalColorImage.getContext("2d");
+        colorCtx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        
+        applyFilters();
+        redrawCanvas();
+        closeSampleModal();
+      };
+      image.src = document.getElementById('sampleImage').src;
+    }
+
+    function closeSampleModal() {
+      document.getElementById('sampleModal').style.display = 'none';
+    }
+
+    function toggleGrayscale() {
+      if (!originalImage || !originalColorImage) return;
+      
+      if (isGrayscale) {
+        const octx = originalImage.getContext("2d");
+        octx.drawImage(originalColorImage, 0, 0, canvas.width, canvas.height);
+        document.getElementById('grayscaleBtn').textContent = "Chuyển ảnh Trắng Đen";
+        isGrayscale = false;
+      } else {
+        const octx = originalImage.getContext("2d");
+        const imgData = octx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+          data[i] = data[i + 1] = data[i + 2] = gray;
+        }
+
+        octx.putImageData(imgData, 0, 0);
+        document.getElementById('grayscaleBtn').textContent = "Chuyển ảnh Màu";
+        isGrayscale = true;
+      }
+      
+      applyFilters();
+      redrawCanvas();
+    }
+
+    function updateSliderValues() {
+      document.getElementById('brightnessValue').textContent = document.getElementById('brightness').value;
+      document.getElementById('contrastValue').textContent = document.getElementById('contrast').value;
+      document.getElementById('threadWidthValue').textContent = document.getElementById('threadWidth').value;
+      stepValue.textContent = stepSlider.value;
+    }
+
+    document.getElementById("brightness").addEventListener("input", () => {
+      applyFilters();
+      redrawCanvas();
+      updateSliderValues();
+    });
+    document.getElementById("contrast").addEventListener("input", () => {
+      applyFilters();
+      redrawCanvas();
+      updateSliderValues();
+    });
+    document.getElementById("threadWidth").addEventListener("input", () => {
+      redrawCanvas();
+      updateSliderValues();
+    });
+    stepSlider.addEventListener("input", () => {
+      updateSliderValues();
+      redrawCanvas();
+    });
+
+    function applyFilters() {
+      if (!originalImage) return;
+      const brightness = parseInt(document.getElementById("brightness").value);
+      const contrast = parseInt(document.getElementById("contrast").value);
+      const octx = originalImage.getContext("2d");
+      const imgData = octx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+
+      const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+      for (let i = 0; i < data.length; i += 4) {
+        for (let j = 0; j < 3; j++) {
+          let val = data[i + j];
+          val = factor * (val - 128) + 128 + brightness;
+          data[i + j] = Math.min(255, Math.max(0, val));
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    function getPoints(pinCount, shape) {
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(centerX, centerY) - 50;
+      const points = [];
+      for (let i = 0; i < pinCount; i++) {
+        const angle = 2 * Math.PI * i / pinCount;
+        let x, y;
+        if (shape === 'circle') {
+          x = centerX + radius * Math.cos(angle);
+          y = centerY + radius * Math.sin(angle);
+        } else if (shape === 'square') {
+          x = centerX + radius * Math.sin(angle) * Math.abs(Math.cos(angle));
+          y = centerY + radius * Math.cos(angle) * Math.abs(Math.sin(angle));
+        } else if (shape === 'oval') {
+          x = centerX + radius * 1.2 * Math.cos(angle);
+          y = centerY + radius * 0.8 * Math.sin(angle);
+        }
+        points.push({ x, y });
+      }
+      return points;
+    }
+
+    canvas.addEventListener('mousedown', startDrag);
+    canvas.addEventListener('touchstart', startDrag);
+    canvas.addEventListener('mousemove', onDrag);
+    canvas.addEventListener('touchmove', onDrag);
+    canvas.addEventListener('mouseup', stopDrag);
+    canvas.addEventListener('touchend', stopDrag);
+
+    function getMousePos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDrag(e) {
+      if (!isEditing) return;
+      const pos = getMousePos(e);
+      for (let i = 0; i < pins.length; i++) {
+        const pin = pins[i];
+        if (Math.hypot(pos.x - pin.x, pos.y - pin.y) < 10) {
+          draggingPin = i;
+          break;
+        }
+      }
+    }
+
+    function onDrag(e) {
+      if (draggingPin !== null && isEditing) {
+        const pos = getMousePos(e);
+        pins[draggingPin] = pos;
+        redrawCanvas();
+      }
+    }
+
+    function stopDrag() { draggingPin = null; }
+
+    function toggleEditPins() {
+      isEditing = !isEditing;
+      document.getElementById('editBtn').textContent = `Chỉnh sửa đinh: ${isEditing ? 'Bật' : 'Tắt'}`;
+    }
+
+    function getBrightnessMap() {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      const map = new Array(canvas.height).fill().map(() => new Array(canvas.width).fill(255));
+      for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
