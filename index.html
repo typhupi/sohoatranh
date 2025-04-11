@@ -5,143 +5,149 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>String Art Generator - Huỳnh Văn Hưng</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="string-art-wrapper">
-    <h2>HUỲNH VĂN HƯNG 0974.47.1984</h2>
-    <div class="input-row">
-      <label class="label-left">Tải ảnh:</label><input type="file" id="upload" accept="image/*">
+<div id="string-art-wrapper">
+  <h2 style="font-size: 1.5em; text-align: center; color: #333; margin: 10px 0;">HUỲNH VĂN HƯNG 0974.47.1984</h2>
+
+  <div class="input-row">
+    <label class="label-left">Tải ảnh:</label><input type="file" id="upload" accept="image/*">
+  </div>
+  <div class="sample-images">
+    <img src="https://via.placeholder.com/150?text=Sample+1" alt="Sample 1" onclick="openSampleModal(0)">
+    <img src="https://via.placeholder.com/150?text=Sample+2" alt="Sample 2" onclick="openSampleModal(1)">
+    <img src="https://via.placeholder.com/150?text=Sample+3" alt="Sample 3" onclick="openSampleModal(2)">
+  </div>
+  <div class="input-row">
+    <button onclick="toggleGrayscale()" id="grayscaleBtn">Chuyển ảnh Trắng Đen</button>
+  </div>
+  <div class="input-row">
+    <div class="slider-wrapper"><label class="label-left">Độ sáng:</label><input type="range" id="brightness" min="-100" max="100" value="0"><span class="slider-value" id="brightnessValue">0</span></div>
+  </div>
+  <div class="input-row">
+    <div class="slider-wrapper"><label class="label-left">Độ tương phản:</label><input type="range" id="contrast" min="-100" max="100" value="0"><span class="slider-value" id="contrastValue">0</span></div>
+  </div>
+  <div class="input-row">
+    <div class="slider-wrapper"><label class="label-left">Xem bước:</label><input type="range" id="stepSlider" min="0" max="0" value="0" disabled><span class="slider-value" id="stepValue">0</span></div>
+  </div>
+  <div class="progress-wrapper">
+    <progress id="progressBar" value="0" max="100" style="width: 80%; display: none;"></progress>
+    <span id="progressText" style="display: none; font-size: 12px; color: #555;"></span>
+    <div id="marqueeText">Tranh chỉ số hoá - Được tạo bởi Huỳnh Văn Hưng 0974.47.1984</div>
+  </div>
+  <canvas id="canvas" width="800" height="800"></canvas>
+  <div class="button-row">
+    <button onclick="toggleImage()" id="toggleImageBtn">Ảnh: Bật</button>
+    <button onclick="togglePins()" id="togglePinsBtn">Đinh: Tắt</button>
+    <button onclick="toggleLines()" id="toggleLinesBtn">Chỉ: Bật</button>
+    <div class="control-buttons">
+      <button class="start-button" id="startBtn" onclick="generateSmartStringArt()">Số hoá tranh</button>
+      <button onclick="togglePause()" id="pauseBtn">Tạm dừng</button>
+      <button onclick="openRealTimeModal()" id="realTimeBtn">Vẽ tranh chỉ</button>
     </div>
-    <div class="sample-images">
-      <img src="https://via.placeholder.com/150?text=Sample+1" alt="Sample 1" onclick="openSampleModal(0)">
-      <img src="https://via.placeholder.com/150?text=Sample+2" alt="Sample 2" onclick="openSampleModal(1)">
-      <img src="https://via.placeholder.com/150?text=Sample+3" alt="Sample 3" onclick="openSampleModal(2)">
+  </div>
+
+  <div class="input-row">
+    <label class="label-left" for="paperSize">Khổ giấy:</label>
+    <select id="paperSize" onchange="updateCanvasSize()">
+      <option value="Default" selected>Default (800x800)</option>
+      <option value="A4">A4 (21.0 x 29.7 cm, 150 DPI)</option>
+      <option value="A3">A3 (29.7 x 42.0 cm, 150 DPI)</option>
+      <option value="A2">A2 (42.0 x 59.4 cm, 150 DPI)</option>
+      <option value="A1">A1 (59.4 x 84.1 cm, 150 DPI)</option>
+    </select>
+    <label class="label-left" for="pins">Số đinh:</label>
+    <input type="number" id="pins" class="pin-input" value="200" min="10" max="1000" onchange="enableStartButton()">
+    <select id="pinPresets" class="pin-input" onchange="document.getElementById('pins').value = this.value; enableStartButton();">
+      <option value="200">200</option>
+      <option value="400">400</option>
+      <option value="600">600</option>
+      <option value="800">800</option>
+    </select>
+    <label class="label-left" for="steps">Số bước:</label><input type="number" id="steps" value="800" min="10" max="5000">
+    <label class="label-left" for="shape">Hình dạng:</label>
+    <select id="shape">
+      <option value="circle">Tròn</option>
+      <option value="square">Vuông</option>
+      <option value="oval">Oval</option>
+    </select>
+  </div>
+
+  <div class="input-row">
+    <label class="label-left" for="threadColor">Màu chỉ:</label><input type="color" id="threadColor" value="#000000">
+    <div class="slider-wrapper"><label class="label-left" for="threadWidth">Độ dày chỉ:</label><input type="range" id="threadWidth" min="0.1" max="2" step="0.1" value="0.1"><span class="slider-value" id="threadWidthValue">0.1</span></div>
+  </div>
+
+  <div class="button-row">
+    <button onclick="downloadSVG()">Tải SVG</button>
+    <button onclick="downloadPNG()">Tải PNG</button>
+    <button onclick="toggleEditPins()" id="editBtn">Chỉnh sửa đinh: Tắt</button>
+    <button onclick="saveToLocal()">Lưu tranh</button>
+    <button onclick="openExportModal()">Tải số hoá Tranh</button>
+    <button onclick="downloadExcel()">Tải Excel số hoá</button>
+  </div>
+
+  <div id="cropModal">
+    <div id="cropModalContent">
+      <img id="cropImage" src="">
+      <br>
+      <button onclick="cropImage()">Cắt ảnh</button>
+      <button onclick="closeCropModal()">Hủy</button>
     </div>
-    <div class="input-row">
-      <button onclick="toggleGrayscale()" id="grayscaleBtn">Chuyển ảnh Trắng Đen</button>
+  </div>
+
+  <div id="sampleModal">
+    <div id="sampleModalContent">
+      <img id="sampleImage" src="">
+      <br>
+      <button onclick="selectSampleImage()">Chọn</button>
+      <button onclick="closeSampleModal()">Trở về</button>
     </div>
-    <div class="input-row">
-      <div class="slider-wrapper"><label class="label-left">Độ sáng:</label><input type="range" id="brightness" min="-100" max="100" value="0"><span class="slider-value" id="brightnessValue">0</span></div>
-    </div>
-    <div class="input-row">
-      <div class="slider-wrapper"><label class="label-left">Độ tương phản:</label><input type="range" id="contrast" min="-100" max="100" value="0"><span class="slider-value" id="contrastValue">0</span></div>
-    </div>
-    <div class="input-row">
-      <div class="slider-wrapper"><label class="label-left">Xem bước:</label><input type="range" id="stepSlider" min="0" max="0" value="0" disabled><span class="slider-value" id="stepValue">0</span></div>
-    </div>
-    <div class="progress-wrapper">
-      <progress id="progressBar" value="0" max="100"></progress>
-      <span id="progressText"></span>
-      <div id="marqueeText">Tranh chỉ số hoá - Được tạo bởi Huỳnh Văn Hưng 0974.47.1984</div>
-    </div>
-    <canvas id="canvas" width="800" height="800"></canvas>
-    <div class="button-row">
-      <button onclick="toggleImage()" id="toggleImageBtn">Ảnh: Bật</button>
-      <button onclick="togglePins()" id="togglePinsBtn">Đinh: Tắt</button>
-      <button onclick="toggleLines()" id="toggleLinesBtn">Chỉ: Bật</button>
-      <div class="control-buttons">
-        <button class="start-button" id="startBtn" onclick="generateSmartStringArt()">Số hoá tranh</button>
-        <button onclick="togglePause()" id="pauseBtn">Tạm dừng</button>
-        <button onclick="openRealTimeModal()" id="realTimeBtn">Vẽ tranh chỉ</button>
+  </div>
+
+  <div id="realTimeModal">
+    <div id="realTimeModalContent">
+      <div id="numberListContainer">
+        <div id="numberList"></div>
       </div>
-    </div>
-    <div class="input-row">
-      <label class="label-left" for="paperSize">Khổ giấy:</label>
-      <select id="paperSize" onchange="updateCanvasSize()">
-        <option value="Default" selected>Default (800x800)</option>
-        <option value="A4">A4 (21.0 x 29.7 cm)</option>
-        <option value="A3">A3 (29.7 x 42.0 cm)</option>
-        <option value="A2">A2 (42.0 x 59.4 cm)</option>
-        <option value="A1">A1 (59.4 x 84.1 cm)</option>
-      </select>
-      <label class="label-left" for="pins">Số đinh:</label>
-      <input type="number" id="pins" class="pin-input" value="200" min="10" max="1000" onchange="enableStartButton()">
-      <select id="pinPresets" class="pin-input" onchange="document.getElementById('pins').value = this.value; enableStartButton();">
-        <option value="200">200</option>
-        <option value="400">400</option>
-        <option value="600">600</option>
-        <option value="800">800</option>
-      </select>
-      <label class="label-left" for="steps">Số bước:</label><input type="number" id="steps" value="800" min="10" max="5000">
-      <label class="label-left" for="shape">Hình dạng:</label>
-      <select id="shape">
-        <option value="circle">Tròn</option>
-        <option value="square">Vuông</option>
-        <option value="oval">Oval</option>
-      </select>
-    </div>
-    <div class="input-row">
-      <label class="label-left" for="threadColor">Màu chỉ:</label><input type="color" id="threadColor" value="#000000">
-      <div class="slider-wrapper"><label class="label-left" for="threadWidth">Độ dày chỉ:</label><input type="range" id="threadWidth" min="0.1" max="2" step="0.1" value="0.1"><span class="slider-value" id="threadWidthValue">0.1</span></div>
-    </div>
-    <div class="button-row">
-      <button onclick="downloadSVG()">Tải SVG</button>
-      <button onclick="downloadPNG()">Tải PNG</button>
-      <button onclick="toggleEditPins()" id="editBtn">Chỉnh sửa đinh: Tắt</button>
-      <button onclick="saveToLocal()">Lưu tranh</button>
-      <button onclick="openExportModal()">Tải số hoá Tranh</button>
-      <button onclick="downloadExcel()">Tải Excel số hoá</button>
-    </div>
-    <div id="cropModal">
-      <div id="cropModalContent">
-        <img id="cropImage" src="">
-        <div class="modal-buttons">
-          <button onclick="cropImage()">Cắt ảnh</button>
-          <button onclick="closeCropModal()">Hủy</button>
-        </div>
-      </div>
-    </div>
-    <div id="sampleModal">
-      <div id="sampleModalContent">
-        <img id="sampleImage" src="">
-        <div class="modal-buttons">
-          <button onclick="selectSampleImage()">Chọn</button>
-          <button onclick="closeSampleModal()">Trở về</button>
-        </div>
-      </div>
-    </div>
-    <div id="realTimeModal">
-      <div id="realTimeModalContent">
-        <div id="numberListContainer">
-          <div id="numberList"></div>
-        </div>
-        <canvas id="realTimeCanvas" width="300" height="300"></canvas>
-        <div id="numberMarquee"></div>
-        <div id="currentNumber"></div>
-        <div id="stepText"></div>
-        <div id="realTimeControls">
-          <input type="range" id="realTimeStepSlider" min="0" max="0" value="0" step="1"><span id="realTimeStepValue">0</span>
-          <input type="range" id="speedSlider" min="0.01" max="10" step="0.1" value="5"><span id="speedValue">5s</span>
-          <button onclick="toggleRealTimePlay()" id="playPauseBtn">Tạm dừng</button>
-          <button onclick="closeRealTimeModal()">Đóng</button>
-        </div>
-      </div>
-    </div>
-    <div id="exportModal">
-      <div id="exportModalContent">
-        <h3>Chọn loại xuất PDF</h3>
-        <select id="exportType">
-          <option value="1">1. Hướng dẫn tranh chỉ</option>
-          <option value="2">2. Bản vẽ bố trí đinh</option>
-          <option value="3">3. Cả hai</option>
-        </select>
-        <div id="stepsInput">
-          <label for="exportSteps">Số bước (tối đa <span id="maxSteps">0</span>):</label>
-          <input type="number" id="exportSteps" min="1" value="0">
-        </div>
-        <div id="includeImageOption">
-          <label><input type="checkbox" id="includeImage"> Kèm tranh chỉ</label>
-        </div>
-        <div class="modal-buttons">
-          <button onclick="downloadNumberPDF()">Xuất PDF</button>
-          <button onclick="closeExportModal()">Hủy</button>
-        </div>
+      <canvas id="realTimeCanvas" width="300" height="300"></canvas>
+      <div id="numberMarquee"></div>
+      <div id="currentNumber"></div>
+      <div id="stepText"></div>
+      <div id="realTimeControls">
+        <input type="range" id="realTimeStepSlider" min="0" max="0" value="0" step="1"><span id="realTimeStepValue">0</span>
+        <input type="range" id="speedSlider" min="0.01" max="10" step="0.1" value="5"><span id="speedValue">5s</span>
+        <button onclick="toggleRealTimePlay()" id="playPauseBtn">Tạm dừng</button>
+        <button onclick="closeRealTimeModal()">Đóng</button>
       </div>
     </div>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="script.js"></script>
+
+  <div id="exportModal">
+    <div id="exportModalContent">
+      <h3 style="color: #333;">Chọn loại xuất PDF</h3>
+      <select id="exportType">
+        <option value="1">1. Hướng dẫn tranh chỉ (mã số)</option>
+        <option value="2">2. Bản vẽ bố trí đinh</option>
+        <option value="3">3. Cả hướng dẫn và bố trí đinh</option>
+      </select>
+      <div id="stepsInput" style="margin-top: 10px;">
+        <label for="exportSteps">Số bước muốn xuất (tối đa <span id="maxSteps">0</span>):</label>
+        <input type="number" id="exportSteps" min="1" value="0">
+      </div>
+      <div id="includeImageOption" style="margin-top: 10px;">
+        <label style="color: #333;"><input type="checkbox" id="includeImage"> Kèm theo tranh chỉ trong PDF</label>
+      </div>
+      <br>
+      <button onclick="downloadNumberPDF()">Xuất PDF</button>
+      <button onclick="closeExportModal()">Hủy</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
