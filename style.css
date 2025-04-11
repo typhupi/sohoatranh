@@ -29,12 +29,12 @@
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: left; margin-top: 1px; gap: 0.5px; 
 }
 .button-row > button { 
-  flex: 1; min-width: 60px; max-width: 33%; margin: 1px 1; padding: 1px; 
+  flex: 1; min-width: 60px; max-width: 33%; margin: 1px 1; padding: 1px; color: white;background-color: orange; 
 }
 .button-row > .control-buttons { 
-  flex: none; width: 300px; display: flex; justify-content: left; gap: 0.5px; margin: 1px -3px; color:blue;background-color: #blue;
+  flex: none; width: 300px; display: flex; justify-content: left; gap: 0.5px; margin: 1px -3px; color:white;background-color: blue;
 }
-.control-buttons > button { width: 90px;color: blue;background-color: #blue; }
+.control-buttons > button { width: 90px;color: blue;background-color: red; }
 .progress-wrapper { 
   width: 100%; text-align: center; margin: 0px 0; position: relative; overflow: hidden; height: 60px; 
 }
