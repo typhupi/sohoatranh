@@ -16,17 +16,17 @@ jobs:
     - name: Build project (HTML example)
       run: |
         mkdir build
-        cp index.html build/index.html  # Nếu HTML thuần
-        # Hoặc npm install & npm run build nếu là React/Vue
+        cp index.html build/index.html
 
     - name: Push to public repo
       run: |
-        git config --global user.email "you@example.com"
+        git config --global user.email "your-email@gmail.com"
         git config --global user.name "Your Name"
 
         cd build
         git init
-        git remote add origin https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/your-username/my-public-web.git
+        git checkout -b main
+        git remote add origin https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/typhupi/sohoatranh-public.git
         git add .
         git commit -m "Deploy from private repo"
         git push -f origin main
