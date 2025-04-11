@@ -46,9 +46,11 @@ function updateCanvasSize() {
   const { width, height, maxPins } = paperSizes[paperSize];
   canvas.width = width;
   canvas.height = height;
+
   const pinInput = document.getElementById('pins');
   pinInput.max = maxPins;
   if (parseInt(pinInput.value) > maxPins) pinInput.value = maxPins;
+
   const pinPresets = document.getElementById('pinPresets');
   pinPresets.innerHTML = '';
   const pinOptions = paperSize === 'Default' ? [200, 400, 600, 800, 1000] :
@@ -67,13 +69,13 @@ function updateCanvasSize() {
   redrawCanvas();
 }
 
-document.getElementById('upload').addEventListener('change', function(e) {
+document.getElementById('upload').addEventListener('change', function (e) {
   const reader = new FileReader();
-  reader.onload = function(event) {
+  reader.onload = function (event) {
     image = new Image();
     image.onload = () => {
       document.getElementById('cropImage').src = event.target.result;
-      document.getElementById('cropModal').style.display = 'flex';
+      document.getElementById('cropModal').style.display = 'block';
       if (cropper) cropper.destroy();
       cropper = new Cropper(document.getElementById('cropImage'), {
         aspectRatio: canvas.width / canvas.height,
@@ -93,11 +95,13 @@ function cropImage() {
   originalImage.height = canvas.height;
   const octx = originalImage.getContext("2d");
   octx.drawImage(croppedCanvas, 0, 0, canvas.width, canvas.height);
+  
   originalColorImage = document.createElement("canvas");
   originalColorImage.width = canvas.width;
   originalColorImage.height = canvas.height;
   const colorCtx = originalColorImage.getContext("2d");
   colorCtx.drawImage(croppedCanvas, 0, 0, canvas.width, canvas.height);
+  
   applyFilters();
   redrawCanvas();
   closeCropModal();
@@ -110,7 +114,7 @@ function closeCropModal() {
 
 function openSampleModal(index) {
   document.getElementById('sampleImage').src = sampleImages[index];
-  document.getElementById('sampleModal').style.display = 'flex';
+  document.getElementById('sampleModal').style.display = 'block';
 }
 
 function selectSampleImage() {
@@ -121,11 +125,13 @@ function selectSampleImage() {
     originalImage.height = canvas.height;
     const octx = originalImage.getContext("2d");
     octx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    
     originalColorImage = document.createElement("canvas");
     originalColorImage.width = canvas.width;
     originalColorImage.height = canvas.height;
     const colorCtx = originalColorImage.getContext("2d");
     colorCtx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    
     applyFilters();
     redrawCanvas();
     closeSampleModal();
@@ -139,6 +145,7 @@ function closeSampleModal() {
 
 function toggleGrayscale() {
   if (!originalImage || !originalColorImage) return;
+  
   if (isGrayscale) {
     const octx = originalImage.getContext("2d");
     octx.drawImage(originalColorImage, 0, 0, canvas.width, canvas.height);
@@ -148,15 +155,18 @@ function toggleGrayscale() {
     const octx = originalImage.getContext("2d");
     const imgData = octx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imgData.data;
+
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i], g = data[i + 1], b = data[i + 2];
       const gray = 0.299 * r + 0.587 * g + 0.114 * b;
       data[i] = data[i + 1] = data[i + 2] = gray;
     }
+
     octx.putImageData(imgData, 0, 0);
     document.getElementById('grayscaleBtn').textContent = "Chuyển ảnh Màu";
     isGrayscale = true;
   }
+  
   applyFilters();
   redrawCanvas();
 }
@@ -168,15 +178,21 @@ function updateSliderValues() {
   stepValue.textContent = stepSlider.value;
 }
 
-['brightness', 'contrast', 'threadWidth'].forEach(id => {
-  document.getElementById(id).addEventListener('input', () => {
-    applyFilters();
-    redrawCanvas();
-    updateSliderValues();
-  });
+document.getElementById("brightness").addEventListener("input", () => {
+  applyFilters();
+  redrawCanvas();
+  updateSliderValues();
 });
-
-stepSlider.addEventListener('input', () => {
+document.getElementById("contrast").addEventListener("input", () => {
+  applyFilters();
+  redrawCanvas();
+  updateSliderValues();
+});
+document.getElementById("threadWidth").addEventListener("input", () => {
+  redrawCanvas();
+  updateSliderValues();
+});
+stepSlider.addEventListener("input", () => {
   updateSliderValues();
   redrawCanvas();
 });
@@ -188,6 +204,7 @@ function applyFilters() {
   const octx = originalImage.getContext("2d");
   const imgData = octx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imgData.data;
+
   const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
   for (let i = 0; i < data.length; i += 4) {
     for (let j = 0; j < 3; j++) {
@@ -196,13 +213,14 @@ function applyFilters() {
       data[i + j] = Math.min(255, Math.max(0, val));
     }
   }
+
   ctx.putImageData(imgData, 0, 0);
 }
 
 function getPoints(pinCount, shape) {
   const centerX = canvas.width / 2;
   const centerY = canvas.height / 2;
-  const radius = Math.min(centerX, centerY) - 20;
+  const radius = Math.min(centerX, centerY) - 50;
   const points = [];
   for (let i = 0; i < pinCount; i++) {
     const angle = 2 * Math.PI * i / pinCount;
@@ -233,7 +251,7 @@ function getMousePos(e) {
   const rect = canvas.getBoundingClientRect();
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) };
+  return { x: clientX - rect.left, y: clientY - rect.top };
 }
 
 function startDrag(e) {
@@ -280,7 +298,8 @@ function getBrightnessMap() {
 function sampleLineBrightness(x1, y1, x2, y2, map) {
   const length = Math.hypot(x2 - x1, y2 - y1);
   const steps = Math.floor(length);
-  let brightnessSum = 0, densitySum = 0;
+  let brightnessSum = 0;
+  let densitySum = 0;
   for (let i = 0; i <= steps; i++) {
     const x = Math.round(x1 + (x2 - x1) * i / steps);
     const y = Math.round(y1 + (y2 - y1) * i / steps);
@@ -312,6 +331,7 @@ function generateSmartStringArt(fromEdit = false) {
   const pinCount = parseInt(document.getElementById('pins').value);
   const steps = parseInt(document.getElementById('steps').value);
   const shape = document.getElementById('shape').value;
+
   if (!fromEdit || pins.length === 0) {
     pins = getPoints(pinCount, shape);
     lines = [];
@@ -322,11 +342,13 @@ function generateSmartStringArt(fromEdit = false) {
     brightnessMap = getBrightnessMap();
     lineDensityMap = new Array(canvas.height).fill().map(() => new Array(canvas.width).fill(0));
   }
+
   isPaused = false;
   startBtn.disabled = true;
   document.getElementById('pauseBtn').textContent = 'Tạm dừng';
   document.getElementById('progressBar').style.display = 'block';
   document.getElementById('progressText').style.display = 'inline';
+
   function stepLoop() {
     if (isPaused || currentStep >= steps) {
       if (currentStep >= steps) {
@@ -341,23 +363,27 @@ function generateSmartStringArt(fromEdit = false) {
       redrawCanvas();
       return;
     }
+
     let bestScore = -1, bestPin = null;
     for (let j = 0; j < pins.length; j++) {
       if (j === lastPin) continue;
       const key = `${Math.min(lastPin, j)}-${Math.max(lastPin, j)}`;
       if (usedPairs.has(key)) continue;
+
       const score = sampleLineBrightness(pins[lastPin].x, pins[lastPin].y, pins[j].x, pins[j].y, brightnessMap);
       if (score > bestScore) {
         bestScore = score;
         bestPin = j;
       }
     }
+
     if (bestPin !== null) {
       const a = pins[lastPin], b = pins[bestPin];
       lines.push({ from: lastPin, to: bestPin });
       usedPairs.add(`${Math.min(lastPin, bestPin)}-${Math.max(lastPin, bestPin)}`);
       updateLineDensity(a.x, a.y, b.x, b.y);
       lastPin = bestPin;
+
       if (showLines) {
         ctx.strokeStyle = document.getElementById('threadColor').value;
         ctx.lineWidth = parseFloat(document.getElementById('threadWidth').value);
@@ -367,12 +393,14 @@ function generateSmartStringArt(fromEdit = false) {
         ctx.stroke();
       }
     }
+
     currentStep++;
     const progress = (currentStep / steps) * 100;
     document.getElementById('progressBar').value = progress;
     document.getElementById('progressText').textContent = `${Math.round(progress)}% - Bước ${currentStep}/${steps}`;
     setTimeout(stepLoop, 1);
   }
+
   stepLoop();
 }
 
@@ -384,12 +412,14 @@ function togglePause() {
 
 function redrawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   if (showImage && originalImage) {
     applyFilters();
   } else {
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
+
   if (showLines) {
     ctx.strokeStyle = document.getElementById('threadColor').value;
     ctx.lineWidth = parseFloat(document.getElementById('threadWidth').value);
@@ -402,19 +432,26 @@ function redrawCanvas() {
       ctx.stroke();
     }
   }
+
   if (showPins && pins.length > 0) {
-    const radiusOffset = Math.min(canvas.width, canvas.height) / 2 - 20;
-    ctx.font = "12px Arial";
+    const radiusOffset = Math.min(canvas.width, canvas.height) / 2 - 30;
+    ctx.font = "13px Arial";
     ctx.textAlign = "center";
     pins.forEach((pin, index) => {
       ctx.fillStyle = (index % 5 === 0) ? "#006400" : "#ff0000";
       ctx.beginPath();
       ctx.arc(pin.x, pin.y, (index % 5 === 0) ? 3 : 2, 0, Math.PI * 2);
       ctx.fill();
+
       const angle = Math.atan2(pin.y - canvas.height / 2, pin.x - canvas.width / 2);
       const labelX = canvas.width / 2 + radiusOffset * Math.cos(angle);
       const labelY = canvas.height / 2 + radiusOffset * Math.sin(angle);
-      let displayNumber = index % 5 === 0 && index !== pins.length - 1 ? index : "";
+      
+      let displayNumber = "";
+      if (index % 5 === 0 && index !== pins.length - 1) {
+        displayNumber = index;
+      }
+      
       if (displayNumber !== "") {
         ctx.fillStyle = "#000";
         ctx.fillText(displayNumber, labelX, labelY);
@@ -425,7 +462,7 @@ function redrawCanvas() {
 
 function toggleImage() {
   showImage = !showImage;
-  document.getElementById('toggleImageBtn').textContent = `Ảnh: ${showImage ? 'Bật' : 'Tắt'}`;
+  document.getElementById('toggleImageBtn').textContent = `Hiện ảnh: ${showImage ? 'Bật' : 'Tắt'}`;
   redrawCanvas();
 }
 
@@ -436,13 +473,13 @@ function togglePins() {
     const shape = document.getElementById('shape').value;
     pins = getPoints(pinCount, shape);
   }
-  document.getElementById('togglePinsBtn').textContent = `Đinh: ${showPins ? 'Bật' : 'Tắt'}`;
+  document.getElementById('togglePinsBtn').textContent = `Hiện đinh: ${showPins ? 'Bật' : 'Tắt'}`;
   redrawCanvas();
 }
 
 function toggleLines() {
   showLines = !showLines;
-  document.getElementById('toggleLinesBtn').textContent = `Chỉ: ${showLines ? 'Bật' : 'Tắt'}`;
+  document.getElementById('toggleLinesBtn').textContent = `Hiện chỉ: ${showLines ? 'Bật' : 'Tắt'}`;
   redrawCanvas();
 }
 
@@ -455,7 +492,8 @@ function downloadPNG() {
 
 function downloadSVG() {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
-    ${lines.map(line => `<line x1="${pins[line.from].x}" y1="${pins[line.from].y}" x2="${pins[line.to].x}" y2="${pins[line.to].y}" stroke="${document.getElementById('threadColor').value}" stroke-width="${document.getElementById('threadWidth').value}"/>`).join('')}
+    ${lines.map(line => 
+      `<line x1="${pins[line.from].x}" y1="${pins[line.from].y}" x2="${pins[line.to].x}" y2="${pins[line.to].y}" stroke="${document.getElementById('threadColor').value}" stroke-width="${document.getElementById('threadWidth').value}"/>`).join('')}
   </svg>`;
   const blob = new Blob([svg], { type: "image/svg+xml" });
   const url = URL.createObjectURL(blob);
@@ -467,17 +505,26 @@ function downloadSVG() {
 }
 
 function saveToLocal() {
-  const data = { pins, lines, threadColor: document.getElementById('threadColor').value, threadWidth: document.getElementById('threadWidth').value, pinCount: document.getElementById('pins').value, steps: document.getElementById('steps').value, shape: document.getElementById('shape').value, paperSize: document.getElementById('paperSize').value };
+  const data = {
+    pins, 
+    lines,
+    threadColor: document.getElementById('threadColor').value,
+    threadWidth: document.getElementById('threadWidth').value,
+    pinCount: document.getElementById('pins').value,
+    steps: document.getElementById('steps').value,
+    shape: document.getElementById('shape').value,
+    paperSize: document.getElementById('paperSize').value
+  };
   localStorage.setItem("stringArtSave", JSON.stringify(data));
   alert("Đã lưu!");
 }
 
 function openExportModal() {
   if (pins.length === 0) {
-    alert("Vui lòng tạo tranh hoặc bật hiển thị đinh trước!");
+    alert("Vui lòng tạo tranh hoặc bật hiển thị đinh trước khi tải PDF!");
     return;
   }
-  document.getElementById('exportModal').style.display = 'flex';
+  document.getElementById('exportModal').style.display = 'block';
   document.getElementById('maxSteps').textContent = lines.length;
   document.getElementById('exportSteps').value = lines.length;
   document.getElementById('exportSteps').max = lines.length;
@@ -492,11 +539,12 @@ function updateExportModal() {
   const exportType = document.getElementById('exportType').value;
   const stepsInput = document.getElementById('stepsInput');
   const includeImageOption = document.getElementById('includeImageOption');
+  
   if (exportType === "1" || exportType === "3") {
     stepsInput.style.display = 'block';
     includeImageOption.style.display = 'block';
     if (lines.length === 0) {
-      alert("Vui lòng tạo tranh trước!");
+      alert("Vui lòng tạo tranh trước khi chọn tùy chọn có mã số!");
       document.getElementById('exportType').value = "2";
       stepsInput.style.display = 'none';
       includeImageOption.style.display = 'none';
@@ -512,58 +560,83 @@ document.getElementById('exportType').addEventListener('change', updateExportMod
 function downloadNumberPDF() {
   const exportType = document.getElementById('exportType').value;
   const paperSize = document.getElementById('paperSize').value === 'Default' ? 'A4' : document.getElementById('paperSize').value;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: paperSize.toLowerCase() });
+  
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: paperSize.toLowerCase()
+  });
+
   doc.setFont("times");
+
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 10;
+
   if (exportType === "1" || exportType === "3") {
     const exportSteps = parseInt(document.getElementById('exportSteps').value);
     if (isNaN(exportSteps) || exportSteps <= 0 || exportSteps > lines.length) {
-      alert(`Số bước không hợp lệ! Vui lòng nhập từ 1 đến ${lines.length}.`);
+      alert(`Số bước không hợp lệ! Vui lòng nhập số từ 1 đến ${lines.length}.`);
       return;
     }
+
     const includeImage = document.getElementById('includeImage').checked;
     const numbers = lines.slice(0, exportSteps).map(line => line.to);
-    const numbersPerColumn = 50;
-    const columnsPerPage = 5;
+    const numbersPerColumn = 100;
+    const columnsPerPage = 10;
     const numbersPerPage = numbersPerColumn * columnsPerPage;
     const totalPages = Math.ceil(numbers.length / numbersPerPage);
+
     if (includeImage) {
       const imgData = canvas.toDataURL('image/png');
       doc.addImage(imgData, 'PNG', margin, margin + 10, pageWidth - 2 * margin, (pageWidth - 2 * margin) * canvas.height / canvas.width);
-      doc.setFontSize(14);
+      doc.setFontSize(16);
       doc.text("Ứng Dụng Tranh Chỉ - Huỳnh Văn Hưng", pageWidth / 2, margin, { align: "center" });
       doc.addPage();
     }
+
     const columnWidth = (pageWidth - 2 * margin) / columnsPerPage;
-    const rowHeight = 4;
+    const rowHeight = 5;
+
     for (let page = 0; page < totalPages; page++) {
       if (page > 0 || (includeImage && page === 0)) doc.addPage();
+
       const startIndex = page * numbersPerPage;
       const endIndex = Math.min(startIndex + numbersPerPage, numbers.length);
+
       doc.setFontSize(12);
-      doc.text("Hướng Dẫn Tranh Chỉ", pageWidth / 2, margin, { align: "center" });
+      doc.text("Hướng Dẫn Tranh Chỉ - Mã Số", pageWidth / 2, margin, { align: "center" });
+
       for (let i = startIndex; i < endIndex; i++) {
         const col = Math.floor((i - startIndex) / numbersPerColumn);
         const row = (i - startIndex) % numbersPerColumn;
         const x = margin + col * columnWidth + columnWidth / 2;
         const y = margin + 15 + row * rowHeight;
-        doc.setFont("times", row % 10 === 0 ? "bold" : "normal");
+
+        if (row % 10 === 0) {
+          doc.setFont("times", "bold");
+        } else {
+          doc.setFont("times", "normal");
+        }
         doc.text(numbers[i].toString(), x, y, { align: "center" });
       }
     }
+
     if (exportType === "1") {
       doc.save(`string-art-numbers-${paperSize}.pdf`);
       closeExportModal();
       return;
     }
   }
+
   const tempCanvas = document.createElement('canvas');
   tempCanvas.width = canvas.width;
   tempCanvas.height = canvas.height;
   const tempCtx = tempCanvas.getContext('2d');
+
   tempCtx.fillStyle = "#fff";
   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
   tempCtx.strokeStyle = "#000000";
   tempCtx.lineWidth = 1;
   tempCtx.beginPath();
@@ -572,50 +645,63 @@ function downloadNumberPDF() {
   tempCtx.moveTo(tempCanvas.width / 2 - 10, tempCanvas.height / 2);
   tempCtx.lineTo(tempCanvas.width / 2 + 10, tempCanvas.height / 2);
   tempCtx.stroke();
-  const radiusOffset = Math.min(tempCanvas.width, tempCanvas.height) / 2 - 20;
-  tempCtx.font = "12px Arial";
+
+  const radiusOffset = Math.min(tempCanvas.width, tempCanvas.height) / 2 - 30;
+  tempCtx.font = "13px Arial";
   tempCtx.textAlign = "center";
   pins.forEach((pin, index) => {
     tempCtx.fillStyle = (index % 5 === 0) ? "#006400" : "#ff0000";
     tempCtx.beginPath();
     tempCtx.arc(pin.x, pin.y, (index % 5 === 0) ? 3 : 2, 0, Math.PI * 2);
     tempCtx.fill();
+
     const angle = Math.atan2(pin.y - tempCanvas.height / 2, pin.x - tempCanvas.width / 2);
     const labelX = tempCanvas.width / 2 + radiusOffset * Math.cos(angle);
     const labelY = tempCanvas.height / 2 + radiusOffset * Math.sin(angle);
-    let displayNumber = index % 5 === 0 && index !== pins.length - 1 ? index : "";
+    
+    let displayNumber = "";
+    if (index % 5 === 0 && index !== pins.length - 1) {
+      displayNumber = index;
+    }
+    
     if (displayNumber !== "") {
       tempCtx.fillStyle = "#000";
       tempCtx.fillText(displayNumber, labelX, labelY);
     }
   });
+
   if (exportType === "3") doc.addPage();
   const imgData = tempCanvas.toDataURL('image/png');
   const scaleFactor = (pageWidth - 2 * margin) / tempCanvas.width;
   const pdfWidth = pageWidth - 2 * margin;
   const pdfHeight = tempCanvas.height * scaleFactor;
-  doc.setFontSize(14);
+
+  doc.setFontSize(16);
   doc.text("Bản Vẽ Bố Trí Đinh - Huỳnh Văn Hưng", pageWidth / 2, margin, { align: "center" });
   doc.addImage(imgData, 'PNG', margin, margin + 10, pdfWidth, pdfHeight);
+
   doc.save(`string-art-${exportType === "2" ? "pin-layout" : "combined"}-${paperSize}.pdf`);
   closeExportModal();
 }
 
 function downloadExcel() {
   if (lines.length === 0) {
-    alert("Vui lòng tạo tranh trước!");
+    alert("Vui lòng tạo tranh trước khi xuất Excel!");
     return;
   }
+
   const maxSteps = lines.length;
-  let exportSteps = prompt(`Nhập số bước (tối đa ${maxSteps}):`, maxSteps);
+  let exportSteps = prompt(`Nhập số bước muốn xuất (tối đa ${maxSteps}):`, maxSteps);
   exportSteps = parseInt(exportSteps);
   if (isNaN(exportSteps) || exportSteps <= 0 || exportSteps > maxSteps) {
-    alert(`Số bước không hợp lệ! Nhập từ 1 đến ${maxSteps}.`);
+    alert(`Số bước không hợp lệ! Vui lòng nhập số từ 1 đến ${maxSteps}.`);
     return;
   }
+
   const header = ["Bước", "Từ Đinh", "Tới Đinh"];
   const data = lines.slice(0, exportSteps).map((line, index) => [index + 1, line.from, line.to]);
   const csvContent = [header, ...data].map(row => row.join(",")).join("\n");
+  
   const blob = new Blob([csvContent], { type: "text/csv" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
@@ -628,16 +714,17 @@ function enableStartButton() {
   startBtn.disabled = false;
 }
 
-['pins', 'steps', 'shape', 'paperSize'].forEach(id => {
-  document.getElementById(id).addEventListener('change', enableStartButton);
-});
+document.getElementById('pins').addEventListener('change', enableStartButton);
+document.getElementById('steps').addEventListener('change', enableStartButton);
+document.getElementById('shape').addEventListener('change', enableStartButton);
+document.getElementById('paperSize').addEventListener('change', enableStartButton);
 
 function openRealTimeModal() {
   if (lines.length === 0) {
-    alert("Vui lòng tạo tranh trước!");
+    alert("Vui lòng tạo tranh trước khi xem vẽ thực tế!");
     return;
   }
-  document.getElementById('realTimeModal').style.display = 'flex';
+  document.getElementById('realTimeModal').style.display = 'block';
   realTimeStep = 0;
   isRealTimePlaying = true;
   document.getElementById('playPauseBtn').textContent = 'Tạm dừng';
@@ -666,7 +753,7 @@ function updateNumberList() {
     numberList.appendChild(div);
   }
   const container = document.getElementById('numberListContainer');
-  container.scrollTop = (realTimeStep - 5) * 14;
+  container.scrollTop = (realTimeStep - 5) * 18;
   document.getElementById('currentNumber').textContent = lines[realTimeStep].to;
   document.getElementById('stepText').innerHTML = `Bước <span>${realTimeStep + 1}</span>`;
   document.getElementById('realTimeStepValue').textContent = realTimeStep;
@@ -676,13 +763,18 @@ function updateNumberList() {
 function updateNumberMarquee() {
   const marquee = document.getElementById('numberMarquee');
   marquee.innerHTML = '';
+  const speed = parseFloat(document.getElementById('speedSlider').value);
+  const animationDuration = speed;
+
   const activeSpan = document.createElement('span');
   activeSpan.textContent = lines[realTimeStep].to;
   activeSpan.classList.add('active');
   marquee.appendChild(activeSpan);
+
   for (let i = realTimeStep + 1; i <= Math.min(realTimeStep + 5, lines.length - 1); i++) {
     const span = document.createElement('span');
     span.textContent = lines[i].to;
+    span.style.animation = `numberScroll ${animationDuration}s linear infinite`;
     marquee.appendChild(span);
   }
 }
@@ -692,9 +784,11 @@ function redrawRealTimeCanvas() {
   realTimeCtx.clearRect(0, 0, realTimeCanvas.width, realTimeCanvas.height);
   realTimeCtx.fillStyle = "#fff";
   realTimeCtx.fillRect(0, 0, realTimeCanvas.width, realTimeCanvas.height);
+
   const scale = realTimeCanvas.width / canvas.width;
   realTimeCtx.strokeStyle = document.getElementById('threadColor').value;
   realTimeCtx.lineWidth = parseFloat(document.getElementById('threadWidth').value) * scale;
+
   const visibleLines = lines.slice(0, realTimeStep + 1);
   for (let line of visibleLines) {
     const a = pins[line.from], b = pins[line.to];
@@ -703,6 +797,7 @@ function redrawRealTimeCanvas() {
     realTimeCtx.lineTo(b.x * scale, b.y * scale);
     realTimeCtx.stroke();
   }
+
   realTimeCtx.fillStyle = "#ff0000";
   pins.forEach(pin => {
     realTimeCtx.beginPath();
@@ -722,6 +817,7 @@ function startRealTimeDrawing() {
       updateNumberMarquee();
     } else if (realTimeStep >= lines.length - 1) {
       clearInterval(realTimeInterval);
+      realTimeInterval = null;
       isRealTimePlaying = false;
       document.getElementById('playPauseBtn').textContent = 'Bắt đầu';
     }
@@ -739,6 +835,7 @@ document.getElementById('speedSlider').addEventListener('input', () => {
   const speed = document.getElementById('speedSlider').value;
   document.getElementById('speedValue').textContent = `${speed}s`;
   if (isRealTimePlaying) startRealTimeDrawing();
+  updateNumberMarquee();
 });
 
 document.getElementById('realTimeStepSlider').addEventListener('input', () => {
@@ -751,35 +848,58 @@ const numberListContainer = document.getElementById('numberListContainer');
 let isDraggingList = false;
 let startY, scrollTop;
 
-['mousedown', 'touchstart'].forEach(event => {
-  numberListContainer.addEventListener(event, (e) => {
-    isDraggingList = true;
-    startY = e.touches ? e.touches[0].pageY : e.pageY - numberListContainer.offsetTop;
-    scrollTop = numberListContainer.scrollTop;
-  });
+numberListContainer.addEventListener('mousedown', (e) => {
+  isDraggingList = true;
+  startY = e.pageY - numberListContainer.offsetTop;
+  scrollTop = numberListContainer.scrollTop;
 });
 
-['mousemove', 'touchmove'].forEach(event => {
-  numberListContainer.addEventListener(event, (e) => {
-    if (!isDraggingList) return;
-    e.preventDefault();
-    const y = e.touches ? e.touches[0].pageY : e.pageY - numberListContainer.offsetTop;
-    const walk = (startY - y) * 2;
-    numberListContainer.scrollTop = scrollTop + walk;
-    const newStep = Math.floor(numberListContainer.scrollTop / 14) + 5;
-    if (newStep >= 0 && newStep < lines.length && newStep !== realTimeStep) {
-      realTimeStep = newStep;
-      document.getElementById('realTimeStepSlider').value = realTimeStep;
-      updateNumberList();
-      updateNumberMarquee();
-    }
-  });
+numberListContainer.addEventListener('mousemove', (e) => {
+  if (!isDraggingList) return;
+  e.preventDefault();
+  const y = e.pageY - numberListContainer.offsetTop;
+  const walk = (startY - y) * 2;
+  numberListContainer.scrollTop = scrollTop + walk;
+  const newStep = Math.floor(numberListContainer.scrollTop / 18) + 5;
+  if (newStep >= 0 && newStep < lines.length && newStep !== realTimeStep) {
+    realTimeStep = newStep;
+    document.getElementById('realTimeStepSlider').value = realTimeStep;
+    updateNumberList();
+    updateNumberMarquee();
+  }
 });
 
-['mouseup', 'touchend', 'mouseleave'].forEach(event => {
-  numberListContainer.addEventListener(event, () => {
-    isDraggingList = false;
-  });
+numberListContainer.addEventListener('mouseup', () => {
+  isDraggingList = false;
+});
+
+numberListContainer.addEventListener('mouseleave', () => {
+  isDraggingList = false;
+});
+
+numberListContainer.addEventListener('touchstart', (e) => {
+  isDraggingList = true;
+  startY = e.touches[0].pageY - numberListContainer.offsetTop;
+  scrollTop = numberListContainer.scrollTop;
+});
+
+numberListContainer.addEventListener('touchmove', (e) => {
+  if (!isDraggingList) return;
+  e.preventDefault();
+  const y = e.touches[0].pageY - numberListContainer.offsetTop;
+  const walk = (startY - y) * 2;
+  numberListContainer.scrollTop = scrollTop + walk;
+  const newStep = Math.floor(numberListContainer.scrollTop / 18) + 5;
+  if (newStep >= 0 && newStep < lines.length && newStep !== realTimeStep) {
+    realTimeStep = newStep;
+    document.getElementById('realTimeStepSlider').value = realTimeStep;
+    updateNumberList();
+    updateNumberMarquee();
+  }
+});
+
+numberListContainer.addEventListener('touchend', () => {
+  isDraggingList = false;
 });
 
 window.addEventListener('load', () => {
