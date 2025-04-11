@@ -9,7 +9,7 @@
 </head>
 <body>
   <div id="string-art-wrapper">
-    <h2 style="font-size:1.5em; text-align: center;">HUỲNH VĂN HƯNG 0974.47.1984</h2>
+    <h2>HUỲNH VĂN HƯNG 0974.47.1984</h2>
     <div class="input-row">
       <label class="label-left">Tải ảnh:</label><input type="file" id="upload" accept="image/*">
     </div>
@@ -31,13 +31,13 @@
       <div class="slider-wrapper"><label class="label-left">Xem bước:</label><input type="range" id="stepSlider" min="0" max="0" value="0" disabled><span class="slider-value" id="stepValue">0</span></div>
     </div>
     <div class="progress-wrapper">
-      <progress id="progressBar" value="0" max="100" style="width:80%; display:none;"></progress>
-      <span id="progressText" style="display:none; font-size:14px;"></span>
+      <progress id="progressBar" value="0" max="100"></progress>
+      <span id="progressText"></span>
       <div id="marqueeText">Tranh chỉ số hoá - Được tạo bởi Huỳnh Văn Hưng 0974.47.1984</div>
     </div>
     <canvas id="canvas" width="800" height="800"></canvas>
     <div class="button-row">
-      <button onclick="toggleImage()" id="toggleImageBtn">Ảnh:Bật</button>
+      <button onclick="toggleImage()" id="toggleImageBtn">Ảnh: Bật</button>
       <button onclick="togglePins()" id="togglePinsBtn">Đinh: Tắt</button>
       <button onclick="toggleLines()" id="toggleLinesBtn">Chỉ: Bật</button>
       <div class="control-buttons">
@@ -50,10 +50,10 @@
       <label class="label-left" for="paperSize">Khổ giấy:</label>
       <select id="paperSize" onchange="updateCanvasSize()">
         <option value="Default" selected>Default (800x800)</option>
-        <option value="A4">A4 (21.0 x 29.7 cm, 150 DPI)</option>
-        <option value="A3">A3 (29.7 x 42.0 cm, 150 DPI)</option>
-        <option value="A2">A2 (42.0 x 59.4 cm, 150 DPI)</option>
-        <option value="A1">A1 (59.4 x 84.1 cm, 150 DPI)</option>
+        <option value="A4">A4 (21.0 x 29.7 cm)</option>
+        <option value="A3">A3 (29.7 x 42.0 cm)</option>
+        <option value="A2">A2 (42.0 x 59.4 cm)</option>
+        <option value="A1">A1 (59.4 x 84.1 cm)</option>
       </select>
       <label class="label-left" for="pins">Số đinh:</label>
       <input type="number" id="pins" class="pin-input" value="200" min="10" max="1000" onchange="enableStartButton()">
@@ -86,17 +86,19 @@
     <div id="cropModal">
       <div id="cropModalContent">
         <img id="cropImage" src="">
-        <br>
-        <button onclick="cropImage()">Cắt ảnh</button>
-        <button onclick="closeCropModal()">Hủy</button>
+        <div class="modal-buttons">
+          <button onclick="cropImage()">Cắt ảnh</button>
+          <button onclick="closeCropModal()">Hủy</button>
+        </div>
       </div>
     </div>
     <div id="sampleModal">
       <div id="sampleModalContent">
         <img id="sampleImage" src="">
-        <br>
-        <button onclick="selectSampleImage()">Chọn</button>
-        <button onclick="closeSampleModal()">Trở về</button>
+        <div class="modal-buttons">
+          <button onclick="selectSampleImage()">Chọn</button>
+          <button onclick="closeSampleModal()">Trở về</button>
+        </div>
       </div>
     </div>
     <div id="realTimeModal">
@@ -120,24 +122,24 @@
       <div id="exportModalContent">
         <h3>Chọn loại xuất PDF</h3>
         <select id="exportType">
-          <option value="1">1. Hướng dẫn tranh chỉ (mã số)</option>
+          <option value="1">1. Hướng dẫn tranh chỉ</option>
           <option value="2">2. Bản vẽ bố trí đinh</option>
-          <option value="3">3. Cả hướng dẫn và bố trí đinh</option>
+          <option value="3">3. Cả hai</option>
         </select>
-        <div id="stepsInput" style="margin-top: 10px;">
-          <label for="exportSteps">Số bước muốn xuất (tối đa <span id="maxSteps">0</span>):</label>
+        <div id="stepsInput">
+          <label for="exportSteps">Số bước (tối đa <span id="maxSteps">0</span>):</label>
           <input type="number" id="exportSteps" min="1" value="0">
         </div>
-        <div id="includeImageOption" style="margin-top: 10px;">
-          <label><input type="checkbox" id="includeImage"> Kèm theo tranh chỉ trong PDF</label>
+        <div id="includeImageOption">
+          <label><input type="checkbox" id="includeImage"> Kèm tranh chỉ</label>
         </div>
-        <br>
-        <button onclick="downloadNumberPDF()">Xuất PDF</button>
-        <button onclick="closeExportModal()">Hủy</button>
+        <div class="modal-buttons">
+          <button onclick="downloadNumberPDF()">Xuất PDF</button>
+          <button onclick="closeExportModal()">Hủy</button>
+        </div>
       </div>
     </div>
   </div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="script.js"></script>
