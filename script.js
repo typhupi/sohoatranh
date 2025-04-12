@@ -462,7 +462,7 @@ function redrawCanvas() {
 
 function toggleImage() {
   showImage = !showImage;
-  document.getElementById('toggleImageBtn').textContent = `Hiện ảnh: ${showImage ? 'Bật' : 'Tắt'}`;
+  document.getElementById('toggleImageBtn').textContent = `Ảnh: ${showImage ? 'Bật' : 'Tắt'}`;
   redrawCanvas();
 }
 
@@ -473,13 +473,13 @@ function togglePins() {
     const shape = document.getElementById('shape').value;
     pins = getPoints(pinCount, shape);
   }
-  document.getElementById('togglePinsBtn').textContent = `Hiện đinh: ${showPins ? 'Bật' : 'Tắt'}`;
+  document.getElementById('togglePinsBtn').textContent = `Đinh: ${showPins ? 'Bật' : 'Tắt'}`;
   redrawCanvas();
 }
 
 function toggleLines() {
   showLines = !showLines;
-  document.getElementById('toggleLinesBtn').textContent = `Hiện chỉ: ${showLines ? 'Bật' : 'Tắt'}`;
+  document.getElementById('toggleLinesBtn').textContent = `Chỉ: ${showLines ? 'Bật' : 'Tắt'}`;
   redrawCanvas();
 }
 
