@@ -103,14 +103,19 @@
     </div>
   </div>
   <div class="button-row">
-    <button onclick="downloadSVG()">Tải SVG</button>
     <button onclick="downloadPNG()">Tải PNG</button>
-    <button onclick="toggleEditPins()" id="editBtn">Chỉnh sửa đinh: Tắt</button>  
-  </div>
-  <div class="button-row">
-    <button onclick="saveToLocal()">Lưu tranh</button>
+    
     <button onclick="openExportModal()">Tải số hoá Tranh</button>
-    <button onclick="downloadExcel()">Tải Excel số hoá</button>
+  </div>
+
+  <div class="advanced-row">
+    <h3 class="collapsed" onclick="toggleAdvancedRow()">Nâng cao</h3>
+    <div class="advanced-content collapsed">
+      <button onclick="saveToLocal()">Lưu tranh</button>
+      <button onclick="downloadSVG()">Tải SVG</button>
+      <button onclick="toggleEditPins()" id="editBtn">Chỉnh sửa đinh: Tắt</button>
+      <button onclick="downloadExcel()">Tải Excel số hoá</button>
+    </div>
   </div>
 
   <div id="cropModal">
@@ -169,14 +174,14 @@
       <button onclick="closeExportModal()">Hủy</button>
     </div>
   </div>
+
+  <footer style="text-align: center; margin-top: 20px; font-size: 14px; color: #555;">
+    Ứng dụng được tạo bởi Huỳnh Văn Hưng và thể hiện năm 2025
+  </footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="script.js"></script>
-
-<footer style="text-align: center; margin-top: 20px; font-size: 14px; color: #555;">
-  Created by Huynh Van Hung, 2025
-</footer>
 </body>
 </html>
