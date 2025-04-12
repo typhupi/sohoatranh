@@ -38,9 +38,11 @@
   </div>
   <canvas id="canvas" width="800" height="800"></canvas>
   <div class="button-row">
-    <button onclick="toggleImage()" id="toggleImageBtn">Ảnh: Bật</button>
-    <button onclick="togglePins()" id="togglePinsBtn">Đinh: Tắt</button>
-    <button onclick="toggleLines()" id="toggleLinesBtn">Chỉ: Bật</button>
+    <div class="control-buttons">
+      <button onclick="toggleImage()" id="toggleImageBtn">Ảnh: Bật</button>
+      <button onclick="togglePins()" id="togglePinsBtn">Đinh: Tắt</button>
+      <button onclick="toggleLines()" id="toggleLinesBtn">Chỉ: Bật</button>
+    </div>
     <div class="control-buttons">
       <button class="start-button" id="startBtn" onclick="generateSmartStringArt()">Số hoá tranh</button>
       <button onclick="togglePause()" id="pauseBtn">Tạm dừng</button>
@@ -48,41 +50,64 @@
     </div>
   </div>
 
-  <div class="input-row">
-    <label class="label-left" for="paperSize">Khổ giấy:</label>
-    <select id="paperSize" onchange="updateCanvasSize()">
-      <option value="Default" selected>Default (800x800)</option>
-      <option value="A4">A4 (21.0 x 29.7 cm, 150 DPI)</option>
-      <option value="A3">A3 (29.7 x 42.0 cm, 150 DPI)</option>
-      <option value="A2">A2 (42.0 x 59.4 cm, 150 DPI)</option>
-      <option value="A1">A1 (59.4 x 84.1 cm, 150 DPI)</option>
-    </select>
-    <label class="label-left" for="pins">Số đinh:</label>
-    <input type="number" id="pins" class="pin-input" value="200" min="10" max="1000" onchange="enableStartButton()">
-    <select id="pinPresets" class="pin-input" onchange="document.getElementById('pins').value = this.value; enableStartButton();">
-      <option value="200">200</option>
-      <option value="400">400</option>
-      <option value="600">600</option>
-      <option value="800">800</option>
-    </select>
-    <label class="label-left" for="steps">Số bước:</label><input type="number" id="steps" value="800" min="10" max="5000">
-    <label class="label-left" for="shape">Hình dạng:</label>
-    <select id="shape">
-      <option value="circle">Tròn</option>
-      <option value="square">Vuông</option>
-      <option value="oval">Oval</option>
-    </select>
+  <div class="settings-row">
+    <span>Khổ giấy:</span>
+    <div class="input-group">
+      <select id="paperSize" onchange="updateCanvasSize()">
+        <option value="Default" selected>Default (800x800)</option>
+        <option value="A4">A4 (21.0 x 29.7 cm, 150 DPI)</option>
+        <option value="A3">A3 (29.7 x 42.0 cm, 150 DPI)</option>
+        <option value="A2">A2 (42.0 x 59.4 cm, 150 DPI)</option>
+        <option value="A1">A1 (59.4 x 84.1 cm, 150 DPI)</option>
+      </select>
+    </div>
   </div>
-
-  <div class="input-row">
-    <label class="label-left" for="threadColor">Màu chỉ:</label><input type="color" id="threadColor" value="#000000">
-    <div class="slider-wrapper"><label class="label-left" for="threadWidth">Độ dày chỉ:</label><input type="range" id="threadWidth" min="0.1" max="2" step="0.1" value="0.1"><span class="slider-value" id="threadWidthValue">0.1</span></div>
+  <div class="settings-row">
+    <span>Số đinh:</span>
+    <div class="input-group">
+      <input type="number" id="pins" class="pin-input" value="200" min="10" max="1000" onchange="enableStartButton()">
+      <select id="pinPresets" onchange="document.getElementById('pins').value = this.value; enableStartButton();">
+        <option value="200">200</option>
+        <option value="400">400</option>
+        <option value="600">600</option>
+        <option value="800">800</option>
+      </select>
+    </div>
   </div>
-
+  <div class="settings-row">
+    <span>Số bước:</span>
+    <div class="input-group">
+      <input type="number" id="steps" value="800" min="10" max="5000">
+    </div>
+  </div>
+  <div class="settings-row">
+    <span>Hình dạng:</span>
+    <div class="input-group">
+      <select id="shape">
+        <option value="circle">Tròn</option>
+        <option value="square">Vuông</option>
+        <option value="oval">Oval</option>
+      </select>
+    </div>
+  </div>
+  <div class="settings-row">
+    <span>Màu chỉ:</span>
+    <div class="input-group">
+      <input type="color" id="threadColor" value="#000000">
+    </div>
+  </div>
+  <div class="settings-row">
+    <span>Độ dày chỉ:</span>
+    <div class="input-group">
+      <input type="range" id="threadWidth" min="0.1" max="2" step="0.1" value="0.1"><span class="slider-value" id="threadWidthValue">0.1</span>
+    </div>
+  </div>
   <div class="button-row">
     <button onclick="downloadSVG()">Tải SVG</button>
     <button onclick="downloadPNG()">Tải PNG</button>
-    <button onclick="toggleEditPins()" id="editBtn">Chỉnh sửa đinh: Tắt</button>
+    <button onclick="toggleEditPins()" id="editBtn">Chỉnh sửa đinh: Tắt</button>  
+  </div>
+  <div class="button-row">
     <button onclick="saveToLocal()">Lưu tranh</button>
     <button onclick="openExportModal()">Tải số hoá Tranh</button>
     <button onclick="downloadExcel()">Tải Excel số hoá</button>
@@ -149,5 +174,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="script.js"></script>
+
+<footer style="text-align: center; margin-top: 20px; font-size: 14px; color: #555;">
+  Created by Huynh Van Hung, 2025
+</footer>
 </body>
 </html>
