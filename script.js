@@ -1,4 +1,5 @@
-
+src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js">
+ src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   let image = new Image();
