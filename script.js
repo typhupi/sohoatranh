@@ -511,7 +511,7 @@ function saveToLocal() {
     threadColor: document.getElementById('threadColor').value,
     threadWidth: document.getElementById('threadWidth').value,
     pinCount: document.getElementById('pins').value,
-    steps: document.getElementById('steps').value,
+    steps: document.getElementById on='steps').value,
     shape: document.getElementById('shape').value,
     paperSize: document.getElementById('paperSize').value
   };
@@ -901,6 +901,13 @@ numberListContainer.addEventListener('touchmove', (e) => {
 numberListContainer.addEventListener('touchend', () => {
   isDraggingList = false;
 });
+
+function toggleAdvancedRow() {
+  const header = document.querySelector('.advanced-row h3');
+  const content = document.querySelector('.advanced-content');
+  header.classList.toggle('collapsed');
+  content.classList.toggle('collapsed');
+}
 
 window.addEventListener('load', () => {
   const params = new URLSearchParams(window.location.search);
