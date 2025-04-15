@@ -66,7 +66,8 @@
     <span>Số đinh:</span>
     <div class="input-group">
       <input type="number" id="pins" class="pin-input" value="200" min="10" max="1000" onchange="enableStartButton()">
-      <select id="pinPresets" onchange="document.getElementById('pins').value = this.value; enableStartButton();">
+      <input type="range" id="pinsSlider" min="10" max="1000" value="200" style="width: 100px;">
+      <select id="pinPresets" onchange="document.getElementById('pins').value = this.value; document.getElementById('pinsSlider').value = this.value; enableStartButton(); updatePins();">
         <option value="200">200</option>
         <option value="400">400</option>
         <option value="600">600</option>
@@ -109,7 +110,7 @@
 
   <div class="advanced-row">
     <h3 class="collapsed" onclick="toggleAdvancedRow()">Nâng cao</h3>
-    <div class="advanced-content collapsed"> 
+    <div class="advanced-content collapsed">
       <button onclick="saveToLocal()">Lưu tranh</button>
       <button onclick="downloadSVG()">Tải SVG</button>
       <button onclick="toggleEditPins()" id="editBtn">Chỉnh sửa đinh: Tắt</button>
@@ -137,16 +138,18 @@
 
   <div id="realTimeModal">
     <div id="realTimeModalContent">
-      <div id="numberListContainer">
-        <div id="numberList"></div>
+      <canvas id="realTimeCanvas"></canvas>
+      <div id="realTimeControls">
+        <button onclick="toggleRealTimeImage()" id="realTimeImageBtn">Ảnh: Bật</button>
+        <button onclick="toggleRealTimePins()" id="realTimePinsBtn">Đinh: Bật</button>
+        <button onclick="toggleRealTimeLines()" id="realTimeLinesBtn">Chỉ: Bật</button>
       </div>
-      <canvas id="realTimeCanvas" width="300" height="300"></canvas>
       <div id="numberMarquee"></div>
       <div id="currentNumber"></div>
       <div id="stepText"></div>
-      <div id="realTimeControls">
+      <div id="realTimeOtherControls">
         <input type="range" id="realTimeStepSlider" min="0" max="0" value="0" step="1"><span id="realTimeStepValue">0</span>
-        <input type="range" id="speedSlider" min="0.01" max="10" step="0.1" value="5"><span id="speedValue">5s</span>
+        <input type="range" id="speedSlider" min="0.005" max="5" step="0.1" value="5"><span id="speedValue">5s</span>
         <button onclick="toggleRealTimePlay()" id="playPauseBtn">Tạm dừng</button>
         <button onclick="closeRealTimeModal()">Đóng</button>
       </div>
@@ -167,13 +170,14 @@
       </div>
       <div id="includeImageOption" style="margin-top: 10px;">
         <label style="color: #333;"><input type="checkbox" id="includeImage"> Kèm theo tranh chỉ trong PDF</label>
+        <label style="color: #333;"><input type="checkbox" id="includeOriginalImage"> Kèm ảnh gốc trong PDF</label>
       </div>
       <br>
       <button onclick="downloadNumberPDF()">Xuất PDF</button>
       <button onclick="closeExportModal()">Hủy</button>
     </div>
   </div>
-
+</div>
   <footer style="text-align: center; margin-top: 20px; font-size: 14px; color: #555;">
     Ứng dụng được tạo bởi Huỳnh Văn Hưng 2025
   </footer>
