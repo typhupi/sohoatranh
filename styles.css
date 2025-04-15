@@ -1,3 +1,434 @@
+  body { 
+      background-color: #f0f4f8; 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      padding: 0; 
+    }
+    #string-art-wrapper {
+      max-width: 800px; 
+      margin: 0 auto; 
+      padding: 10px; 
+      position: relative; 
+      touch-action: auto; 
+      background-color: #ffffff; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    #string-art-wrapper input, 
+    #string-art-wrapper button, 
+    #string-art-wrapper select {
+      font-size: 14px; 
+      margin: 4px 0; 
+      padding: 6px; 
+      box-sizing: border-box; 
+      border-radius: 4px; 
+      border: 1px solid #ccc; 
+      background-color: #fff; 
+      color: #333;
+    }
+    #string-art-wrapper button {
+      background-color: #ff9500; 
+      color: #fff; 
+      border: none; 
+      cursor: pointer; 
+      transition: background-color 0.3s;
+    }
+    #string-art-wrapper button:hover {
+      background-color: #e08500;
+    }
+    #string-art-wrapper canvas {
+      border: 1px solid #ddd; 
+      max-width: 100%; 
+      touch-action: none; 
+      display: block; 
+      margin: 0 auto; 
+      background-color: #fff;
+    }
+    #cropModal, #sampleModal, #realTimeModal, #exportModal {
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0, 0, 0, 0.6); 
+      z-index: 1000; 
+      overflow-y: auto; 
+      touch-action: auto;
+    }
+    #cropModalContent, #sampleModalContent, #exportModalContent {
+      position: relative; 
+      margin: 50px auto; 
+      background: #fff; 
+      padding: 15px; 
+      border-radius: 8px; 
+      text-align: center; 
+      max-width: 90%; 
+      width: 320px; 
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    #realTimeModalContent {
+      position: relative; 
+      margin: 0 auto; 
+      background: #fff; 
+      padding: 15px; 
+      border-radius: 8px; 
+      text-align: center; 
+      max-width: 100%; 
+      width: 100%; 
+      min-height: calc(100vh - 20px);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    #realTimeCanvas {
+      position: relative; 
+      top: 0; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      border: 5px solid #ddd; 
+      border-radius: 20px;
+      background-color: #fff; 
+      max-width: 100%;
+      order: 1; 
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    #realTimeControls {
+      position: relative; 
+      width: 100%; 
+      text-align: center; 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 5px; 
+      justify-content: center; 
+      order: 2;
+      margin-top: 2px;
+    }
+    #numberMarquee {
+      position: relative; 
+      margin:0px auto; 
+      width: 90%; 
+      height: 20px; 
+      border: 2px solid #ddd; 
+      overflow: hidden; 
+      background: #fff; 
+      white-space: nowrap; 
+      text-align: left; 
+      border-radius: 4px;
+      order: 3;
+    }
+    #currentNumber {
+      position: absolute; 
+      right: 10px; 
+      bottom: 40px; 
+      font-size: 100px; 
+      font-weight: bold; 
+      color: #333;
+      order: 4;
+    }
+    #stepText {
+      position: absolute; 
+      right: 15px; 
+      bottom: 40px; 
+      font-size: 18px; 
+      color: #007bff; 
+      text-align: right;
+      order: 5;
+    }
+    #realTimeOtherControls {
+      position: absolute;
+      margin: 650px auto; 
+      text-align: center; 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 5px; 
+      justify-content: center;
+      order: 6;
+    }
+    #cropImage, #sampleImage { 
+      max-width: 100%; 
+      max-height: 300px;
+    }
+    .slider-wrapper { 
+      display: flex; 
+      align-items: center; 
+      width: 100%; 
+      margin: 4px 0; 
+      padding-left: 0; 
+    }
+    .slider-value { 
+      margin-left: 8px; 
+      font-size: 12px; 
+      min-width: 25px; 
+      color: #555; 
+    }
+    .input-row { 
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: flex-start; 
+      align-items: center; 
+      margin-bottom: 8px; 
+    }
+    .input-row > * { 
+      flex: 1; 
+      min-width: 100px; 
+      margin: 4px; 
+    }
+    .input-row .pin-input { 
+      min-width: 50px; 
+      flex: 0 0 50px; 
+    }
+    .button-row { 
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: space-between; 
+      align-items: stretch; 
+      margin: 5px 0; 
+      padding: 10px 0; 
+      gap: 5px;
+    }
+    .button-row > button { 
+      flex: 1; 
+      min-width: 0; 
+      max-width: calc(33.33% - 14px); 
+      margin: 0; 
+      padding: 8px; 
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .button-row > .control-buttons { 
+      flex: 1 0 100%; 
+      display: flex; 
+      justify-content: space-between; 
+      gap: 5px; 
+      margin: 0; 
+      padding: 0; 
+    }
+    .control-buttons > button { 
+      flex: 1; 
+      min-width: 0; 
+      max-width: calc(33.33% - 14px); 
+      padding: 8px; 
+      background-color: #ff9500; 
+      color: #fff; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .control-buttons > button:hover { 
+      background-color: #e08500; 
+    }
+    .progress-wrapper { 
+      width: 100%; 
+      text-align: center; 
+      margin: 10px 0; 
+      position: relative; 
+      overflow: hidden; 
+      height: 60px; 
+    }
+    .label-left { 
+      text-align: left; 
+      width: 90px; 
+      flex: 0 0 auto; 
+      margin-right: 8px; 
+      color: #444; 
+    }
+    .start-button { 
+      background-color: #28a745; 
+      color: #fff; 
+    }
+    .start-button:disabled { 
+      background-color: #ccc; 
+      cursor: not-allowed; 
+    }
+    #marqueeText {
+      font-size: 14px; 
+      color: #007bff; 
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); 
+      white-space: nowrap; 
+      position: absolute; 
+      top: 30px; 
+      left: 100%; 
+      animation: marquee 6s linear infinite;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+    .sample-images { 
+      display: flex; 
+      gap: 8px; 
+      margin-top: 8px; 
+      justify-content: center; 
+    }
+    .sample-images img { 
+      width: 70px; 
+      height: 70px; 
+      object-fit: cover; 
+      cursor: pointer; 
+      border: 2px solid #ddd; 
+      border-radius: 4px; 
+      transition: border-color 0.3s; 
+    }
+    .sample-images img:hover { 
+      border-color: #28a745; 
+    }
+    #realTimeControls button, #realTimeOtherControls button { 
+      margin-top: 5px; 
+      padding: 6px; 
+      min-width: 100px;
+    }
+    #realTimeStepSlider { 
+      width: 120px; 
+      margin-top: -20px; 
+    }
+    #speedSlider { 
+      width: 120px; 
+      margin-top: -20px; 
+    }
+    #numberMarquee span { 
+      display: inline-block; 
+      padding: 0 4px; 
+      font-size: 12px; 
+      color: #333; 
+      margin-top: 2px;
+    }
+    #numberMarquee .active { 
+      font-weight: bold; 
+      color: #dc3545; 
+      font-size: 14px; 
+      margin-top: 2px;
+    }
+    @keyframes numberScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 8px 0;
+      padding: 0 4px;
+    }
+    .settings-row span {
+      font-size: 14px;
+      color: #444;
+      flex: 0 0 auto;
+    }
+    .settings-row .input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .settings-row input, 
+    .settings-row select {
+      width: 100px;
+    }
+    .settings-row .slider-wrapper {
+      margin: 0;
+    }
+    .advanced-row {
+      margin-top: 10px;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+    }
+    .advanced-row h3 {
+      font-size: 16px;
+      color: #333;
+      margin: 0 0 8px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .advanced-row h3::after {
+      content: '>>>';
+      font-size: 12px;
+      margin-left: 10px;
+      transition: transform 0.3s;
+    }
+    .advanced-row h3.collapsed::after {
+      transform: rotate(-90deg);
+    }
+    .advanced-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 5px;
+      max-height: 100px;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    .advanced-content.collapsed {
+      max-height: 0;
+    }
+    .advanced-content button {
+      flex: 1;
+      min-width: 0;
+      max-width: calc(33.33% - 14px);
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (max-width: 600px) {
+      .button-row {
+        justify-content: space-between; 
+        padding: 0; 
+        gap: 5px;
+      }
+      .button-row > button {
+        max-width: calc(33.33% - 14px); 
+        margin: 0; 
+      }
+      .button-row > .control-buttons {
+        padding: 0; 
+        gap: 5px;
+      }
+      .control-buttons > button {
+        max-width: calc(33.33% - 14px); 
+        margin: 0; 
+      }
+      .advanced-content button {
+        max-width: calc(33.33% - 14px);
+      }
+      #string-art-wrapper {
+        padding: 5px; 
+      }
+      .settings-row input, 
+      .settings-row select {
+        width: 80px;
+      }
+      #realTimeModalContent {
+        width: 100%;
+        padding: 10px;
+        margin: 0;
+      }
+      #realTimeCanvas {
+        width: 100% !important;
+        height: auto !important;
+      }
+      #realTimeControls {
+        width: 100%;
+      }
+      #numberMarquee {
+        width: 95%;
+      }
+    }
+    @media (min-width: 601px) {
+      .button-row > button {
+        max-width: calc(33.33% - 14px); 
+      }
+      .button-row > .control-buttons {
+        flex: 1 0 100%;
+        width: auto; 
+        gap: 1px;
+      }
+      
+      /* Embedded in the HTML <style> tag, no changes needed */
 body { 
   background-color: #f0f4f8; 
   font-family: Arial, sans-serif; 
@@ -14,409 +445,5 @@ body {
   border-radius: 8px; 
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-#string-art-wrapper input, 
-#string-art-wrapper button, 
-#string-art-wrapper select {
-  font-size: 14px; 
-  margin: 4px 0; 
-  padding: 6px; 
-  box-sizing: border-box; 
-  border-radius: 4px; 
-  border: 1px solid #ccc; 
-  background-color: #fff; 
-  color: #333;
-}
-#string-art-wrapper button {
-  background-color: #ff9500; 
-  color: #fff; 
-  border: none; 
-  cursor: pointer; 
-  transition: background-color 0.3s;
-}
-#string-art-wrapper button:hover {
-  background-color: #e08500;
-}
-#string-art-wrapper canvas {
-  border: 1px solid #ddd; 
-  max-width: 100%; 
-  touch-action: none; 
-  display: block; 
-  margin: 0 auto; 
-  background-color: #fff;
-}
-#cropModal, #sampleModal, #realTimeModal, #exportModal {
-  display: none; 
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%; 
-  background: rgba(0, 0, 0, 0.6); 
-  z-index: 1000; 
-  overflow-y: auto; 
-  touch-action: auto;
-}
-#cropModalContent, #sampleModalContent, #exportModalContent {
-  position: relative; 
-  margin: 50px auto; 
-  background: #fff; 
-  padding: 15px; 
-  border-radius: 8px; 
-  text-align: center; 
-  max-width: 90%; 
-  width: 320px; 
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-#realTimeModalContent {
-  position: relative; 
-  margin: 20px auto; 
-  background: #fff; 
-  padding: 15px; 
-  border-radius: 8px; 
-  text-align: center; 
-  max-width: 90%; 
-  width: 700px; 
-  height: 550px; 
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-#cropImage, #sampleImage { 
-  max-width: 100%; 
-  max-height: 300px;
-}
-.slider-wrapper { 
-  display: flex; 
-  align-items: center; 
-  width: 100%; 
-  margin: 4px 0; 
-  padding-left: 0; 
-}
-.slider-value { 
-  margin-left: 8px; 
-  font-size: 12px; 
-  min-width: 25px; 
-  color: #555; 
-}
-.input-row { 
-  display: flex; 
-  flex-wrap: wrap; 
-  justify-content: flex-start; 
-  align-items: center; 
-  margin-bottom: 8px; 
-}
-.input-row > * { 
-  flex: 1; 
-  min-width: 100px; 
-  margin: 4px; 
-}
-.input-row .pin-input { 
-  min-width: 50px; 
-  flex: 0 0 50px; 
-}
-.button-row { 
-  display: flex; 
-  flex-wrap: wrap; 
-  justify-content: space-between; 
-  align-items: stretch; 
-  margin: 5px 0; 
-  padding: 10px 0; 
-  gap: 5px;
-}
-.button-row > button { 
-  flex: 1; 
-  min-width: 0; 
-  max-width: calc(33.33% - 14px); 
-  margin: 0; 
-  padding: 8px; 
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.button-row > .control-buttons { 
-  flex: 1 0 100%; 
-  display: flex; 
-  justify-content: space-between; 
-  gap: 5px; 
-  margin: 0; 
-  padding: 0; 
-}
-.control-buttons > button { 
-  flex: 1; 
-  min-width: 0; 
-  max-width: calc(33.33% - 14px); 
-  padding: 8px; 
-  background-color: #ff9500; 
-  color: #fff; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.control-buttons > button:hover { 
-  background-color: #e08500; 
-}
-.progress-wrapper { 
-  width: 100%; 
-  text-align: center; 
-  margin: 10px 0; 
-  position: relative; 
-  overflow: hidden; 
-  height: 60px; 
-}
-.label-left { 
-  text-align: left; 
-  width: 90px; 
-  flex: 0 0 auto; 
-  margin-right: 8px; 
-  color: #444; 
-}
-.start-button { 
-  background-color: #28a745; 
-  color: #fff; 
-}
-.start-button:disabled { 
-  background-color: #ccc; 
-  cursor: not-allowed; 
-}
-#marqueeText {
-  font-size: 14px; 
-  color: #007bff; 
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3); 
-  white-space: nowrap; 
-  position: absolute; 
-  top: 30px; 
-  left: 100%; 
-  animation: marquee 6s linear infinite;
-}
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-100%); }
-}
-.sample-images { 
-  display: flex; 
-  gap: 8px; 
-  margin-top: 8px; 
-  justify-content: center; 
-}
-.sample-images img { 
-  width: 70px; 
-  height: 70px; 
-  object-fit: cover; 
-  cursor: pointer; 
-  border: 2px solid #ddd; 
-  border-radius: 4px; 
-  transition: border-color 0.3s; 
-}
-.sample-images img:hover { 
-  border-color: #28a745; 
-}
-#numberListContainer {
-  position: absolute; 
-  left: 15px; 
-  top: 15px; 
-  width: 35px; 
-  height: 180px; 
-  overflow-y: auto; 
-  border: 1px solid #ddd; 
-  background: #fff; 
-  border-radius: 4px; 
-}
-#numberList { 
-  font-size: 12px; 
-  text-align: right; 
-  color: #333; 
-}
-#numberList div { 
-  padding: 2px; 
-}
-#numberList .active { 
-  font-weight: bold; 
-  color: #dc3545; 
-  font-size: 14px; 
-}
-#currentNumber {
-  position: absolute; 
-  right: 15px; 
-  bottom: 80px; 
-  font-size: 100px; 
-  font-weight: bold; 
-  color: #333; 
-}
-#stepText {
-  position: absolute; 
-  right: 15px; 
-  bottom: 200px; 
-  font-size: 18px; 
-  color: #007bff; 
-  text-align: right; 
-}
-#stepText span { 
-  color: #dc3545; 
-}
-#realTimeCanvas {
-  position: absolute; 
-  top: 15px; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 280px; 
-  height: 280px; 
-  border: 1px solid #ddd; 
-  background-color: #fff; 
-}
-#realTimeControls {
-  position: absolute; 
-  bottom: 15px; 
-  width: 100%; 
-  text-align: left; 
-  padding-left: 15px; 
-  display: flex; 
-  flex-wrap: wrap; 
-  gap: 5px; 
-}
-#realTimeStepSlider { 
-  width: 100px; 
-  margin-top: 2px; 
-}
-#speedSlider { 
-  width: 100px; 
-  margin-top: 2px; 
-}
-#realTimeControls button { 
-  margin-top: 2px; 
-  padding: 6px; 
-}
-#numberMarquee {
-  position: absolute; 
-  top: 480px; 
-  left: 50%; 
-  transform: translateX(-50%); 
-  width: 320px; 
-  height: 20px; 
-  border: 1px solid #ddd; 
-  overflow: hidden; 
-  background: #fff; 
-  white-space: nowrap; 
-  text-align: left; 
-  border-radius: 4px; 
-}
-#numberMarquee span { 
-  display: inline-block; 
-  padding: 0 4px; 
-  font-size: 12px; 
-  color: #333; 
-}
-#numberMarquee .active { 
-  font-weight: bold; 
-  color: #dc3545; 
-  font-size: 14px; 
-}
-@keyframes numberScroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-.settings-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 8px 0;
-  padding: 0 4px;
-}
-.settings-row span {
-  font-size: 14px;
-  color: #444;
-  flex: 0 0 auto;
-}
-.settings-row .input-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.settings-row input, 
-.settings-row select {
-  width: 100px;
-}
-.settings-row .slider-wrapper {
-  margin: 0;
-}
-.advanced-row {
-  margin-top: 10px;
-  border-top: 1px solid #ddd;
-  padding-top: 10px;
-}
-.advanced-row h3 {
-  font-size: 16px;
-  color: #333;
-  margin: 0 0 8px 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-.advanced-row h3::after {
-  content: '▼';
-  font-size: 12px;
-  margin-left: 10px;
-  transition: transform 0.3s;
-}
-.advanced-row h3.collapsed::after {
-  transform: rotate(-90deg);
-}
-.advanced-content {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 5px;
-  max-height: 100px;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-}
-.advanced-content.collapsed {
-  max-height: 0;
-}
-.advanced-content button {
-  flex: 1;
-  min-width: 0;
-  max-width: calc(33.33% - 14px);
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-@media (max-width: 600px) {
-  .button-row {
-    justify-content: space-between; 
-    padding: 0; 
-    gap: 5px;
-  }
-  .button-row > button {
-    max-width: calc(33.33% - 14px); 
-    margin: 0; 
-  }
-  .button-row > .control-buttons {
-    padding: 0; 
-    gap: 5px;
-  }
-  .control-buttons > button {
-    max-width: calc(33.33% - 14px); 
-    margin: 0; 
-  }
-  .advanced-content button {
-    max-width: calc(33.33% - 14px);
-  }
-  #string-art-wrapper {
-    padding: 5px; 
-  }
-  .settings-row input, 
-  .settings-row select {
-    width: 80px;
-  }
-}
-@media (min-width: 601px) {
-  .button-row > button {
-    max-width: calc(33.33% - 14px); 
-  }
-  .button-row > .control-buttons {
-    flex: 1 0 100%;
-    width: auto; 
-    gap: 1px;
-  }
-}
+/* ... rest of the CSS remains as in the original ... */
+    }
